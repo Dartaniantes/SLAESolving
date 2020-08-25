@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ArtifactsWorkspaceSettings">
+    <artifacts-to-build>
+      <artifact name="CourseWork:jar" />
+    </artifacts-to-build>
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="bc4c5735-a7c5-4b20-b8f1-cf87f5da5870" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/SLAESolving/src/Model/Gauss.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/SLAESolving/src/Model/GraphicSolve.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/SLAESolving/src/Model/Jakobi.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/SLAESolving/src/Model/JordanGauss.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/SLAESolving/src/Model/Model.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/SLAESolving/src/Model/Rotation.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SLAESolving/src/Controller.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/SLAESolving/src/Matrix.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/SLAESolving/src/SLAEMatrix.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/SLAESolving/src/SLAESolver.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/SLAESolving/src/View.java" beforeDir="false" afterPath="$PROJECT_DIR$/SLAESolving/src/View.java" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Class" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/SLAESolving" />
+  </component>
+  <component name="ProjectId" id="1gDPWwe7rAmgAh3k1q0bh24xDsL" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">
+    <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../JavaLibraries/JavaFX14/javafx-sdk-14.0.2.1/lib" />
+    <property name="project.structure.last.edited" value="Libraries" />
+    <property name="project.structure.proportion" value="0.15" />
+    <property name="project.structure.side.proportion" value="0.2" />
+    <property name="settings.editor.selected.configurable" value="preferences.JavaFX" />
+  </component>
+  <component name="RunManager" selected="Application.View">
+    <configuration name="Jakobi$Jacobi" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="Model.Jakobi$Jacobi" />
+      <module name="CourseWork" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="Model.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="Main" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="Main" />
+      <module name="CourseWork" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="Rotation" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="Model.Rotation" />
+      <module name="CourseWork" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="Model.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="View" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="View" />
+      <module name="CourseWork" />
+      <option name="VM_PARAMETERS" value="--module-path &quot;F:\JavaLibraries\JavaFX14\javafx-sdk-14.0.2.1\lib&quot; --add-modules javafx.controls,javafx.fxml" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.app.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <list>
+      <item itemvalue="Application.Jakobi$Jacobi" />
+      <item itemvalue="Application.Main" />
+      <item itemvalue="Application.Rotation" />
+      <item itemvalue="Application.View" />
+    </list>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Application.View" />
+        <item itemvalue="Application.Main" />
+        <item itemvalue="Application.Rotation" />
+        <item itemvalue="Application.Jakobi$Jacobi" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="bc4c5735-a7c5-4b20-b8f1-cf87f5da5870" name="Default Changelist" comment="" />
+      <created>1597646224981</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1597646224981</updated>
+    </task>
+    <servers />
+  </component>
+  <component name="WindowStateProjectService">
+    <state x="191" y="134" key="#Live_Templates" timestamp="1597734516218">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state x="191" y="134" key="#Live_Templates/0.0.1920.1040@0.0.1920.1040" timestamp="1597734516218" />
+    <state x="2334" y="181" width="1092" height="716" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1598379004813">
+      <screen x="1920" y="0" width="1920" height="1080" />
+    </state>
+    <state x="2334" y="181" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.0.1920.1040/1920.0.1920.1080@1920.0.1920.1080" timestamp="1598379004813" />
+    <state x="414" y="174" width="1092" height="716" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.0.1920.1040@0.0.1920.1040" timestamp="1597936595101" />
+    <state x="765" y="220" key="#com.intellij.ide.util.MemberChooser" timestamp="1598253326113">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state x="765" y="220" key="#com.intellij.ide.util.MemberChooser/0.0.1920.1040/1920.0.1920.1080@0.0.1920.1040" timestamp="1598253326113" />
+    <state x="765" y="220" key="#com.intellij.ide.util.MemberChooser/0.0.1920.1040@0.0.1920.1040" timestamp="1598185381712" />
+    <state x="2609" y="312" key="#com.intellij.ide.util.TreeClassChooserDialog" timestamp="1598373413547">
+      <screen x="1920" y="0" width="1920" height="1080" />
+    </state>
+    <state x="2609" y="312" key="#com.intellij.ide.util.TreeClassChooserDialog/0.0.1920.1040/1920.0.1920.1080@1920.0.1920.1080" timestamp="1598373413547" />
+    <state x="689" y="0" key="#com.intellij.refactoring.rename.AutomaticRenamingDialog" timestamp="1598180383766">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state x="689" y="0" key="#com.intellij.refactoring.rename.AutomaticRenamingDialog/0.0.1920.1040@0.0.1920.1040" timestamp="1598180383766" />
+    <state x="690" y="266" key="#com.intellij.refactoring.safeDelete.UnsafeUsagesDialog" timestamp="1598176875964">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state x="690" y="266" key="#com.intellij.refactoring.safeDelete.UnsafeUsagesDialog/0.0.1920.1040@0.0.1920.1040" timestamp="1598176875964" />
+    <state x="2372" y="248" key="FileChooserDialogImpl" timestamp="1598378948052">
+      <screen x="1920" y="0" width="1920" height="1080" />
+    </state>
+    <state x="452" y="239" key="FileChooserDialogImpl/0.0.1920.1040/1920.0.1920.1080@0.0.1920.1040" timestamp="1598328181357" />
+    <state x="2372" y="248" key="FileChooserDialogImpl/0.0.1920.1040/1920.0.1920.1080@1920.0.1920.1080" timestamp="1598378948052" />
+    <state x="452" y="239" key="FileChooserDialogImpl/0.0.1920.1040@0.0.1920.1040" timestamp="1598002607863" />
+    <state width="1920" height="67" key="GridCell.Tab.0.bottom" timestamp="1598378976486">
+      <screen x="1920" y="0" width="1920" height="1080" />
+    </state>
+    <state width="1767" height="2" key="GridCell.Tab.0.bottom/0.0.1920.1040/1920.0.1920.1080@0.0.1920.1040" timestamp="1598358668841" />
+    <state width="1920" height="67" key="GridCell.Tab.0.bottom/0.0.1920.1040/1920.0.1920.1080@1920.0.1920.1080" timestamp="1598378976486" />
+    <state width="1876" height="474" key="GridCell.Tab.0.bottom/0.0.1920.1040@0.0.1920.1040" timestamp="1598195289366" />
+    <state width="1920" height="67" key="GridCell.Tab.0.center" timestamp="1598378976486">
+      <screen x="1920" y="0" width="1920" height="1080" />
+    </state>
+    <state width="1767" height="2" key="GridCell.Tab.0.center/0.0.1920.1040/1920.0.1920.1080@0.0.1920.1040" timestamp="1598358668840" />
+    <state width="1920" height="67" key="GridCell.Tab.0.center/0.0.1920.1040/1920.0.1920.1080@1920.0.1920.1080" timestamp="1598378976486" />
+    <state width="1876" height="474" key="GridCell.Tab.0.center/0.0.1920.1040@0.0.1920.1040" timestamp="1598195289366" />
+    <state width="1920" height="67" key="GridCell.Tab.0.left" timestamp="1598378976486">
+      <screen x="1920" y="0" width="1920" height="1080" />
+    </state>
+    <state width="1767" height="2" key="GridCell.Tab.0.left/0.0.1920.1040/1920.0.1920.1080@0.0.1920.1040" timestamp="1598358668840" />
+    <state width="1920" height="67" key="GridCell.Tab.0.left/0.0.1920.1040/1920.0.1920.1080@1920.0.1920.1080" timestamp="1598378976486" />
+    <state width="1876" height="474" key="GridCell.Tab.0.left/0.0.1920.1040@0.0.1920.1040" timestamp="1598195289365" />
+    <state width="1920" height="67" key="GridCell.Tab.0.right" timestamp="1598378976486">
+      <screen x="1920" y="0" width="1920" height="1080" />
+    </state>
+    <state width="1767" height="2" key="GridCell.Tab.0.right/0.0.1920.1040/1920.0.1920.1080@0.0.1920.1040" timestamp="1598358668841" />
+    <state width="1920" height="67" key="GridCell.Tab.0.right/0.0.1920.1040/1920.0.1920.1080@1920.0.1920.1080" timestamp="1598378976486" />
+    <state width="1876" height="474" key="GridCell.Tab.0.right/0.0.1920.1040@0.0.1920.1040" timestamp="1598195289366" />
+    <state width="1876" height="342" key="GridCell.Tab.1.bottom" timestamp="1598269569766">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state width="1876" height="342" key="GridCell.Tab.1.bottom/0.0.1920.1040/1920.0.1920.1080@0.0.1920.1040" timestamp="1598269569766" />
+    <state width="1876" height="342" key="GridCell.Tab.1.center" timestamp="1598269569766">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state width="1876" height="342" key="GridCell.Tab.1.center/0.0.1920.1040/1920.0.1920.1080@0.0.1920.1040" timestamp="1598269569766" />
+    <state width="1876" height="342" key="GridCell.Tab.1.left" timestamp="1598269569766">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state width="1876" height="342" key="GridCell.Tab.1.left/0.0.1920.1040/1920.0.1920.1080@0.0.1920.1040" timestamp="1598269569766" />
+    <state width="1876" height="342" key="GridCell.Tab.1.right" timestamp="1598269569766">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state width="1876" height="342" key="GridCell.Tab.1.right/0.0.1920.1040/1920.0.1920.1080@0.0.1920.1040" timestamp="1598269569766" />
+    <state x="2360" y="97" key="SettingsEditor" timestamp="1598378970707">
+      <screen x="1920" y="0" width="1920" height="1080" />
+    </state>
+    <state x="440" y="93" key="SettingsEditor/0.0.1920.1040/1920.0.1920.1080@0.0.1920.1040" timestamp="1598328184896" />
+    <state x="2360" y="97" key="SettingsEditor/0.0.1920.1040/1920.0.1920.1080@1920.0.1920.1080" timestamp="1598378970707" />
+    <state x="440" y="93" key="SettingsEditor/0.0.1920.1040@0.0.1920.1040" timestamp="1597936447580" />
+    <state x="777" y="433" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2" timestamp="1598331502276">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state x="777" y="433" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2/0.0.1920.1040/1920.0.1920.1080@0.0.1920.1040" timestamp="1598331502276" />
+    <state x="985" y="0" width="634" height="969" key="dock-window-1" timestamp="1598002724928">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state x="985" y="0" width="634" height="969" key="dock-window-1/0.0.1920.1040@0.0.1920.1040" timestamp="1598002724928" />
+    <state x="1142" y="0" width="778" height="1040" key="dock-window-2" timestamp="1598003653791">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state x="1142" y="0" width="778" height="1040" key="dock-window-2/0.0.1920.1040@0.0.1920.1040" timestamp="1598003653791" />
+    <state x="2262" y="144" key="new project wizard" timestamp="1598378006917">
+      <screen x="1920" y="0" width="1920" height="1080" />
+    </state>
+    <state x="342" y="139" key="new project wizard/0.0.1920.1040/1920.0.1920.1080@0.0.1920.1040" timestamp="1598328304083" />
+    <state x="2262" y="144" key="new project wizard/0.0.1920.1040/1920.0.1920.1080@1920.0.1920.1080" timestamp="1598378006917" />
+    <state x="342" y="139" key="new project wizard/0.0.1920.1040@0.0.1920.1040" timestamp="1597734399606" />
+    <state x="623" y="225" width="672" height="678" key="search.everywhere.popup" timestamp="1598268936718">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state x="623" y="225" width="672" height="678" key="search.everywhere.popup/0.0.1920.1040/1920.0.1920.1080@0.0.1920.1040" timestamp="1598268936718" />
+  </component>
+</project>
