@@ -185,11 +185,6 @@ public class Model {
         return slae;
     }
 
-    public void createSlae(int varNum) {
-        double[][] slae = new double[varNum][varNum + 1];
-        this.originSlae = slae;
-    }
-
     public void setMatrix(double[][] matrix) {
         this.originSlae = matrix;
     }

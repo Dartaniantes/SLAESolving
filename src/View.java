@@ -30,7 +30,7 @@ public class View extends Application {
     TextField inputFileF, manCoefsF[][], manFreeValsF[], outputFileF;
     Label inputL, methodL, manVarNumL, readWarnL, genVarNumL, outFileL, enterPathL, generateMatrixL, generatedMatrixL,
             enterValidOutputPathL, incorrectInputL,resultL, resultWrittenL, inputFieldEmptyL, fileDoesntExistL, readMatrixL, inconsistentMatrix, inputMatrixL, inputTitleL, resultTitleL;
-    String outputPath = "E://CourseWorkOutput/output.txt";
+    String outputPath = "D://CourseWorkOutput/output.txt";
     ChoiceBox<String> inputTypeList, methodList;
     ChoiceBox<Integer> manVarNumCB, genVarNumCB;
     LineChart<Number,Number> chart;
