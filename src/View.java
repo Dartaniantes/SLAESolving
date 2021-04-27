@@ -56,7 +56,7 @@ public class View extends Application {
         methodL = new Label(" Choose solving method : ");
         inputTypeList = new ChoiceBox<>();
         inputTypeList.getItems().addAll("Generate randomly", "Read from file", "Enter manually");
-        inputTypeList.setValue("Generate randomly");
+        inputTypeList.setValue("Enter manually");
         inputTypeList.getSelectionModel().selectedItemProperty().addListener((v, oldVal, newVal) -> {
             if (newVal == "Read from file") {
                 layout.setCenter(readPane);
@@ -224,7 +224,6 @@ public class View extends Application {
         genChoosePane.getChildren().addAll(genVarNumL, genVarNumCB, genGenDoubleB, genGenIntB);
         genPane = new VBox();
         genPane.getChildren().addAll(genChoosePane, generatedMatrixL);
-        layout.setCenter(genPane);
 
 
         // "readPane"
@@ -301,6 +300,7 @@ public class View extends Application {
         manPane = new VBox();
         manPane.setPadding(new Insets(10));
         manPane.getChildren().addAll(manChosePane, manFieldsPane);
+        layout.setCenter(manPane);
 
         st.setScene(scene);
         st.show();

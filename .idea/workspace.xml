@@ -2,22 +2,11 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="f9036cb3-608d-4b60-8764-cd4efac5c1c3" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/encodings.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/uiDesigner.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/libraries/lib1.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libraries/lib1.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/${ResultsPath}" beforeDir="false" afterPath="$PROJECT_DIR$/${ResultsPath}" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/CourseWork/Model/Gauss.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/CourseWork/Model/JordanGauss.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/CourseWork/Model/Matrix.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/CourseWork/Model/Model.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/CourseWork/Model/Rotation.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/CourseWork/Model/SLAEMethod.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/CourseWork/Model/exception/InconsistentMatrixException.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/CourseWork/Model/exception/InvalidInputException.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/CourseWork/TestMain.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/production/CourseWork/View.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/SLAESolving/Model/Model.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/SLAESolving/Model/Model.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/out/production/SLAESolving/TestMain.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/SLAESolving/TestMain.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/SLAESolving/View.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/SLAESolving/View.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/TestMain.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/TestMain.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/View.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/View.java" afterDir="false" />
     </list>
@@ -25,6 +14,13 @@
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Class" />
+      </list>
+    </option>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
