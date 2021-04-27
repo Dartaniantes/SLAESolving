@@ -30,7 +30,7 @@ public class View extends Application {
     TextField inputFileF, manCoefsF[][], manFreeValsF[], outputFileF;
     Label inputL, methodL, manVarNumL, readWarnL, genVarNumL, outFileL, enterPathL, generateMatrixL, generatedMatrixL,
             enterValidOutputPathL, incorrectInputL,resultL, resultWrittenL, inputFieldEmptyL, fileDoesntExistL, readMatrixL, inconsistentMatrix, inputMatrixL, inputTitleL, resultTitleL;
-    String outputPath = "D://CourseWorkOutput/output.txt";
+    String outputPath = "${ResultsPath}";
     ChoiceBox<String> inputTypeList, methodList;
     ChoiceBox<Integer> manVarNumCB, genVarNumCB;
     LineChart<Number,Number> chart;
@@ -306,14 +306,12 @@ public class View extends Application {
         st.show();
     }
 
-    public void getChartSolving() {
-
-    }
-
     public void getChartSolving(double[][] matrix) {
         if (matrix.length != 2 & matrix[0].length != 3)
             throw new RuntimeException("Matrix has less or more than two variables to solve it by chart");
         else {
+            TestMain tm = new TestMain(matrix);
+            tm.start(new Stage());
             double e1x = matrix[0][2]/matrix[0][0];    //e1y = 0
             double e1y = matrix[0][2] / matrix[0][1];  //e1x = 0
             double e2x = matrix[1][2]/ matrix[1][0];   // e2y = 0
