@@ -14,6 +14,7 @@ import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 import java.math.BigDecimal;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -22,6 +23,8 @@ public class TestMain extends Application {
     private Stage st;
     private Scene sc;
     private double[][] m;
+    private int height = 720;
+    private int width = 1080;
 
     public static void main(String[] args) {
         launch(args);
@@ -37,8 +40,7 @@ public class TestMain extends Application {
 
     @Override
     public void start(Stage stage) {
-        int height = 720;
-        int width = 1080;
+
         stage.setTitle("Chart");
         this.st = stage;
         Group graph = new Group();
@@ -99,25 +101,39 @@ public class TestMain extends Application {
         MathFunction f2 = x -> (freeCoef2 - x2Coef * (x - scaler)) / y2Coef + scaler;
 
 
-        System.out.println("Delta out vertical = " + getDelta(f1));
+//        System.out.println("Delta out vertical = " + getDelta(f1));
 
 
-        Line graph1 = drawFuncGraph(height, width, m[0][0], m[0][1], m[0][2]);
-        Line graph2 = drawFuncGraph(height, width, m[1][0], m[1][1], m[1][2]);
+//        Line graph1 = drawFuncGraph(height, width, m[0][0], m[0][1], m[0][2]);
+//        Line graph2 = drawFuncGraph(height, width, m[1][0], m[1][1], m[1][2]);
+//
+        Line graph1 = drawFuncGraph(height, width,
+                BigDecimal.valueOf(m[0][0]),
+                BigDecimal.valueOf(m[0][1]),
+                BigDecimal.valueOf(m[0][2])
+        );
+        Line graph2 = drawFuncGraph(height, width,
+                BigDecimal.valueOf(m[1][0]),
+                BigDecimal.valueOf(m[1][1]),
+                BigDecimal.valueOf(m[1][2])
+        );
+
 
 //        Line graph1 = drawFuncGraph(height, width, f1);
 //        Line graph2 = drawFuncGraph(height, width, f2);
-
-
+        showCross(graph1,graph2);
         g.getChildren().addAll(graph1, graph2);
 
-        Shape cross = Line.intersect(graph1, graph2);
-        System.out.println("Cross x="+(cross.getBoundsInParent().getCenterX() - width/2 - scaler));
-        System.out.println("Cross y="+(- cross.getBoundsInParent().getCenterY() + height / 2 - scaler));
         return g;
     }
 
-    private Group drawCoordinates(Group g, int height, int width) {
+    private void showCross(Line l1, Line l2) {
+        Shape cross = Line.intersect(l1, l2);
+        System.out.println("Cross x="+(cross.getBoundsInParent().getCenterX() - width/2 - 30));
+        System.out.println("Cross y="+(- cross.getBoundsInParent().getCenterY() + height / 2 - 30));
+    }
+
+    private void drawCoordinates(Group g, int height, int width) {
         g.getChildren().clear();
         Line xLine = new Line(0, height / 2, width, height / 2);
         Line yLine = new Line(width / 2, 0, width / 2, height);
@@ -151,22 +167,43 @@ public class TestMain extends Application {
                 }
             }
         }
-        return g;
     }
 
+
+    //accurate
     private double getDelta(MathFunction f) {
-        return f.count(2) - f.count(1);
+        return BigDecimal.valueOf(f.count(2)).subtract(BigDecimal.valueOf(f.count(1))).doubleValue();
     }
 
-    /*private Line drawFuncGraph(int height, int width, BigDecimal xCoef, BigDecimal yCoef, BigDecimal freeCoef){
-        double scaler = 30.0;
+
+    //all double values became BigDecimal
+    private Line drawFuncGraph(int height, int width, BigDecimal xCoef, BigDecimal yCoef, BigDecimal freeCoef){
+        BigDecimal bigScaler = BigDecimal.valueOf(30);
+        BigDecimal bigHeight = BigDecimal.valueOf(height);
+        BigDecimal bigWidth = BigDecimal.valueOf(width);
         MathFunction f = null;
-        if(!yCoef.equals(BigDecimal.valueOf(0)))
-            f = x -> (freeCoef - xCoef.multiply(BigDecimal.valueOf(x-scaler)) * ( - scaler))/yCoef + scaler;
+        if (!yCoef.equals(0)) {
+            f = x -> freeCoef.subtract(
+                    xCoef.multiply(
+                            BigDecimal.valueOf(x).subtract(bigScaler)
+                    )
+            )
+                    .divide(yCoef)
+                    .add(bigScaler)
+                    .doubleValue();
+        }
 
         if (f != null && Math.abs(getDelta(f)) >= 1) {
-            if(xCoef != 0){
-                f = y -> (freeCoef - yCoef * (y + scaler)/xCoef - scaler);
+            if(!xCoef.equals(0)){
+                f = y -> freeCoef.subtract(
+                        yCoef.multiply(
+                                BigDecimal.valueOf(y).add(bigScaler)
+                        )
+                )
+                        .divide(xCoef)
+                        .subtract(bigScaler)
+                        .doubleValue();
+
                 System.out.println("Delta in vertical = " + getDelta(f));
                 return new Line(
                         -f.count(-height/2) + width/2,
@@ -176,83 +213,81 @@ public class TestMain extends Application {
                 );
             } else return new Line(
                     0,
-                    -freeCoef / yCoef + height/2,
+                    freeCoef.multiply(BigDecimal.valueOf(-1)).divide(yCoef).add(bigScaler).add(bigHeight.divide(BigDecimal.valueOf(2))).doubleValue(),
                     width,
-                    -freeCoef / yCoef + height/2
+                    freeCoef.multiply(BigDecimal.valueOf(-1)).divide(yCoef).add(bigScaler).add(bigHeight.divide(BigDecimal.valueOf(2))).doubleValue()
             );
-        } else if(f != null){
+        }
+        else if(f != null){
             return new Line(
                     0,
-                    -f.count(-width/2) + height/2,
+                    BigDecimal.valueOf(-f.count(-width/2)).add(bigHeight.divide(BigDecimal.valueOf(2))).doubleValue(),
                     width,
-                    -f.count(width/2) + height/2
+                    BigDecimal.valueOf(-f.count(width/2)).add(bigHeight.divide(BigDecimal.valueOf(2))).doubleValue()
             );
-        } else if(xCoef != 0){
+        } else if(!xCoef.equals(0)){
+
             return new Line(
-                    freeCoef/xCoef + width/2,
+                    freeCoef.divide(yCoef).add(bigWidth.divide(BigDecimal.valueOf(2))).add(bigScaler).doubleValue(),
                     0,
-                    freeCoef/xCoef + width/2,
+                    freeCoef.divide(yCoef).add(bigWidth.divide(BigDecimal.valueOf(2))).add(bigScaler).doubleValue(),
                     height
             );
         }
         throw new RuntimeException("Cant draw graph");
-    }*/
+    }
 
+
+    //Not all double became BigDecimal
     private Line drawFuncGraph(int height, int width, double xCoef, double yCoef, double freeCoef){
         double scaler = 30.0;
         MathFunction f = null;
-        if(yCoef != 0)
-            f = x -> (freeCoef - xCoef * (x - scaler))/yCoef + scaler;
+        if (yCoef != 0)
+            f = x -> (freeCoef - xCoef*(x))/yCoef;
 
-        if (f != null && Math.abs(getDelta(f)) >= 1) {
+        if (f != null && Math.abs(getDelta(f)) >= 1)
             if(xCoef != 0){
-                f = y -> (freeCoef - yCoef * (y + scaler)/xCoef - scaler);
+                f = y -> (freeCoef - yCoef * (y)/xCoef);
                 System.out.println("Delta in vertical = " + getDelta(f));
                 return new Line(
-                        -f.count(-height/2) + width/2,
-                        0,
-                        -f.count(height/2) + width/2,
-                        height
+                        -f.count(-height/2) + width/2 + scaler,
+                        0 - scaler,
+                        -f.count(height/2) + width/2 + scaler,
+                        height - scaler
                 );
             } else return new Line(
-                    0,
-                    -freeCoef / yCoef + height/2,
-                    width,
-                    -freeCoef / yCoef + height/2
+                    0 + scaler,
+                    -freeCoef / yCoef + height/2 - scaler,
+                    width + scaler,
+                    -freeCoef / yCoef + height/2 - scaler
             );
-        } else if(f != null){
+        else if(f != null)
             return new Line(
-                    0,
-                    -f.count(-width/2) + height/2,
-                    width,
-                    -f.count(width/2) + height/2
+                    0 + scaler,
+                    -f.count(-width/2) + height/2 - scaler,
+                    width + scaler,
+                    -f.count(width/2) + height/2 - scaler
             );
-        } else if(xCoef != 0){
+        else if(xCoef != 0)
             return new Line(
-                    freeCoef/xCoef + width/2,
-                    0,
-                    freeCoef/xCoef + width/2,
-                    height
+                    freeCoef/xCoef + width/2 + scaler,
+                    0 - scaler,
+                    freeCoef/xCoef + width/2 + scaler,
+                    height - scaler
             );
-        }
+
         throw new RuntimeException("Cant draw graph");
     }
 
     private Line drawFuncGraph(int height, int width, MathFunction f) {
         System.out.println("Delta Y = " + getDelta(f));
-//        if(Math.abs(getDelta(f))  < 1)
         return new Line(
                 0,
                 -f.count(-width / 2) + height / 2,
                 width,
                 -f.count(width / 2) + height / 2
         );
-//        return new Line();
     }
-
-    /*private double solveEquasion(MathFunction f, double y) {
-
-    }*/
 
     private Set<Line> drawFuncGraph(Group g, int height, int width, MathFunction f) {
         Set<Line> graph = new HashSet();
@@ -272,7 +307,6 @@ public class TestMain extends Application {
 
     interface MathFunction {
         double count(double num);
-
     }
 }
 

@@ -2,9 +2,9 @@ package Model;
 
 public class Gauss extends SLAEMethod{
 
-    private static final double EPSILON = 0.00001;
+//    private static final double EPSILON = 0.00001;
     private double[][] matrix;
-    private double[] vector;
+//    private double[] vector;
 
     public void setMatrix(double[][] matrix) {
         this.matrix = matrix;
@@ -23,9 +23,6 @@ public class Gauss extends SLAEMethod{
         }
         System.out.println();
     }
-
-
-
 
     /*public double[] solve() {
         //origin method, DONT DELETE
