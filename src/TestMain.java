@@ -1,4 +1,5 @@
 import javafx.application.Application;
+import javafx.geometry.Bounds;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.paint.Color;
@@ -61,10 +62,7 @@ public class TestMain extends Application {
         int scaler = 30;
 
         transposedFunctionsResultsForEquation(m[0]);
-
-        transposedFunctionsResultsForEquationDouble(m[0]);
-
-//        transposedFunctionsResultsForEquation(m[1]);
+        transposedFunctionsResultsForEquation(m[1]);
 
         Line graph1 = drawFuncGraph(height, width,
                 BigDecimal.valueOf(m[0][0]),
@@ -77,7 +75,11 @@ public class TestMain extends Application {
                 BigDecimal.valueOf(m[1][1]),
                 BigDecimal.valueOf(m[1][2])
         );
-        showCrossCoordinates(graph1,graph2);
+
+        Shape s = Line.union(graph1,graph2);
+        
+        System.out.println(s.getBoundsInParent().getCenterX() + "=x, y=" + s.getBoundsInParent().getCenterY());
+        showStageCrossCoordinates(graph1,graph2);
         designateCrossDot(graph1, graph2);
         group.getChildren().addAll(graph1, graph2);
         subscribeGraph(graph1, "1st");
@@ -139,10 +141,20 @@ public class TestMain extends Application {
         System.out.println("y("+val+")="+f1Res+", x("+f1Res+")="+f1TRes);
     }
 
-    private void showCrossCoordinates(Line l1, Line l2) {
+    private void showSceneCrossCoordinates(Line l1, Line l2) {
         Shape cross = Line.intersect(l1, l2);
-        System.out.println("Cross x="+(cross.getBoundsInParent().getCenterX() - width/2/*- - 30*/));
-        System.out.println("Cross y="+(- cross.getBoundsInParent().getCenterY()  + height / 2/*- 30*/));
+        if (cross != null) {
+            System.out.println("Scene cross x=" + (cross.getBoundsInParent().getCenterX() - width / 2/*- - 30*/));
+            System.out.println("Scene cross y=" + (-cross.getBoundsInParent().getCenterY() + height / 2/*- 30*/));
+        }
+    }
+
+    private void showStageCrossCoordinates(Line l1, Line l2) {
+        Shape cross = Line.intersect(l1, l2);
+        if (cross != null) {
+            System.out.println("Stage cross x=" + (cross.getBoundsInParent().getCenterX()));
+            System.out.println("Stage cross y=" + (cross.getBoundsInParent().getCenterY()));
+        }
     }
 
     private void designateCrossDot(Line l1, Line l2) {
@@ -153,12 +165,14 @@ public class TestMain extends Application {
 
     private Coordinates getStageCrossCoordinates(Line l1, Line l2) {
         Shape intersection = Line.intersect(l1, l2);
-        return new Coordinates(intersection.getBoundsInParent().getCenterX(), intersection.getBoundsInParent().getCenterY());
+        Bounds b = intersection.getBoundsInParent();
+        return b.isEmpty() ? null : new Coordinates(b.getCenterX(), b.getCenterY());
     }
 
     private Coordinates getSceneCrossCoordinates(Line l1, Line l2) {
         Shape intersection = Line.intersect(l1, l2);
-        return new Coordinates(intersection.getBoundsInParent().getCenterX() - width/2, - intersection.getBoundsInParent().getCenterY()  + height / 2);
+        Bounds b = intersection.getBoundsInParent();
+        return b.isEmpty() ? null : new Coordinates(b.getCenterX() - width/2, - b.getCenterY()  + height / 2);
     }
 
     private Line drawLine(Color color,int strokeWidth, double xStart, double yStart, double xEnd, double yEnd) {
@@ -225,10 +239,12 @@ public class TestMain extends Application {
         BigDecimal scaler = BigDecimal.valueOf(30);
         BigDecimal halfHeight = BigDecimal.valueOf(height).divide(BigDecimal.valueOf(2));
         BigDecimal halfWidth = BigDecimal.valueOf(width).divide(BigDecimal.valueOf(2));
-        MathFunctionBD f = getStraightFunc(xCoef, yCoef, freeCoef, scaler);
+        MathFunctionBD f = getStraightFunc(xCoef, yCoef, freeCoef);
+        System.out.println("\nDelta y = " + getDelta(f));
 
         if (f != null && Math.abs(getDelta(f)) >= 1) { //yCoef != 0 & func with xVariable fits in height size
-            if ((f = getStraightFunc(yCoef, xCoef, freeCoef, scaler)) != null) {        //xCoef != 0
+            if ((f = getStraightFunc(yCoef, xCoef, freeCoef)) != null) {        //xCoef != 0
+                System.out.println("Delta x = " + getDelta(f));
                 return new Line(
                         f.count(halfHeight)
                                 .add(halfWidth)
