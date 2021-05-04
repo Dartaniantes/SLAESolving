@@ -44,13 +44,12 @@ public class TestMain extends Application {
 
         stage.setHeight(height);
         stage.setWidth(width);
-        drawCoordinates(height, width);
+//        drawCoordinates(height, width);
 
 //        drawFunc(graph, height, width, f);
 //        getGraphSolve(graph, height, width, this.m);
         getGraphSolve(height, width, new double[][]{{10,1,8},
-                {1,2,9}});
-
+                                                    {1,2,9}});
         stage.setScene(scene);
         stage.show();
     }
@@ -78,7 +77,7 @@ public class TestMain extends Application {
 
         Shape s = Line.union(graph1,graph2);
         
-        System.out.println(s.getBoundsInParent().getCenterX() + "=x, y=" + s.getBoundsInParent().getCenterY());
+        System.out.println("Stage shape center coordinates:x="+s.getBoundsInParent().getCenterX() + ", y=" + s.getBoundsInParent().getCenterY());
         showStageCrossCoordinates(graph1,graph2);
         designateCrossDot(graph1, graph2);
         group.getChildren().addAll(graph1, graph2);
