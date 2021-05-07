@@ -9,6 +9,7 @@ import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Arrays;
 
 public class TestMain extends Application {
@@ -86,6 +87,98 @@ public class TestMain extends Application {
 
     }
 
+    private void drawCoordinates(int height, int width) {
+        group.getChildren().clear();
+        Line xLine = new Line(0, height / 2, width, height / 2);
+        Line yLine = new Line(width / 2, 0, width / 2, height);
+        xLine.setStrokeWidth(2);
+        yLine.setStrokeWidth(2);
+        int xCenter = width / 2;
+        int yCenter = height / 2;
+        group.getChildren().addAll(xLine, yLine);
+        for (int i = 0; i < width / 2 | i < height / 2; i += 10) {
+            if (i % 20 == 0) {
+                if (i < width / 2) {
+                    group.getChildren().add(new Line(xCenter + i, yCenter+4, xCenter + i, yCenter-4));
+                    group.getChildren().add(new Line(xCenter - i, yCenter+4, xCenter - i, yCenter-4));
+                }
+                if (i < height / 2) {
+                    group.getChildren().add(new Line(xCenter + 4, yCenter + i, xCenter - 4, yCenter + i));
+                    group.getChildren().add(new Line(xCenter + 4, yCenter - i, xCenter - 4, yCenter - i));
+                }
+            } else {
+                if (i < width / 2) {
+                    group.getChildren().add(new Line(xCenter + i, yCenter + 2, xCenter + i, yCenter - 2));
+                    group.getChildren().add(new Line(xCenter - i, yCenter + 2, xCenter - i, yCenter - 2));
+                }
+                if (i < height / 2) {
+                    group.getChildren().add(new Line(xCenter + 2, yCenter + i, xCenter - 2, yCenter + i));
+                    group.getChildren().add(new Line(xCenter + 2, yCenter - i, xCenter - 2, yCenter - i));
+                }
+            }
+        }
+    }
+
+    //all double values became BigDecimal
+    private Line drawFuncGraph(int height, int width, BigDecimal xCoef, BigDecimal yCoef, BigDecimal freeCoef){
+        if(yCoef.equals(BigDecimal.valueOf(0)) & xCoef.equals(BigDecimal.valueOf(0)))
+            throw new RuntimeException("Cant draw graph");
+        Coordinates start = new Coordinates();
+        Coordinates end = new Coordinates();
+        BigDecimal scaler = BigDecimal.valueOf(10);
+        BigDecimal halfHeight = BigDecimal.valueOf(height).divide(BigDecimal.valueOf(2));
+        BigDecimal halfWidth = BigDecimal.valueOf(width).divide(BigDecimal.valueOf(2));
+        MathFunctionBD f = getStraightFunc(xCoef, yCoef, freeCoef,scaler);
+        System.out.println("\nDelta y = " + getDelta(f));
+
+        if (f != null && Math.abs(getDelta(f)) >= 1) { //yCoef != 0 & func with xVariable fits in height size
+            if ((f = getStraightFunc(yCoef, xCoef, freeCoef)) != null) {        //xCoef != 0
+                System.out.println("Delta x = " + getDelta(f));
+                start.x = f.count(halfHeight)
+                        .add(halfWidth)
+                        .doubleValue();
+                start.y = 0;
+                end.x = f.count(halfHeight.negate())
+                        .add(halfWidth)
+                        .doubleValue();
+                end.y = height;
+            } else {            //xCoef == 0
+                double yVal = freeCoef.divide(yCoef.negate())
+                        .add(halfHeight)
+                        .doubleValue();
+                start.x = 0;
+                start.y = yVal;
+                end.x = width;
+                end.y = yVal;
+                return new Line(
+                        0,
+                        yVal,
+                        width,
+                        yVal
+                );
+            }
+        } else if(f != null){
+            start.x = 0;
+            start.y = f.count(halfWidth.negate()).negate()
+                    .add(halfHeight)
+                    .doubleValue();
+            end.x = width;
+            end.y = f.count(halfWidth).negate()
+                    .add(halfHeight)
+                    .doubleValue();
+        } else if(!xCoef.equals(0)){        // yCoef == 0 & xCoef != 0
+            start.x = freeCoef.divide(yCoef.negate())
+                    .add(halfWidth)
+                    .doubleValue();
+            start.y = 0;
+            end.x = freeCoef.divide(yCoef)
+                    .add(halfWidth)
+                    .doubleValue();
+            end.y = height;
+        }
+        return new Line(start.x, start.y, end.x, end.y);
+    }
+
     private void subscribeGraph(Line graph, String text) {
         Text t = new Text(graph.getStartX() + 50,graph.getStartY() + 50,text);
         t.setStroke(Color.RED);
@@ -106,7 +199,7 @@ public class TestMain extends Application {
     private MathFunctionBD getStraightFunc(BigDecimal varCoef, BigDecimal denominator, BigDecimal freeVal, BigDecimal scaler){
         if (denominator.equals(BigDecimal.valueOf(0)))
             return null;
-        return var -> (freeVal.subtract(varCoef.multiply(var.subtract(scaler)))).divide(denominator).add(scaler);
+        return var -> (freeVal.subtract(varCoef.multiply(var.divide(scaler, RoundingMode.HALF_UP)))).divide(denominator).multiply(scaler);
     }
 
     private void transposedFunctionsResultsForEquationDouble(double[] eqt) {
@@ -188,38 +281,6 @@ public class TestMain extends Application {
         return l;
     }
 
-    private void drawCoordinates(int height, int width) {
-        group.getChildren().clear();
-        Line xLine = new Line(0, height / 2, width, height / 2);
-        Line yLine = new Line(width / 2, 0, width / 2, height);
-        xLine.setStrokeWidth(2);
-        yLine.setStrokeWidth(2);
-        int xCenter = width / 2;
-        int yCenter = height / 2;
-        group.getChildren().addAll(xLine, yLine);
-        for (int i = 0; i < width / 2 | i < height / 2; i += 10) {
-            if (i % 20 == 0) {
-                if (i < width / 2) {
-                    group.getChildren().add(new Line(xCenter + i, yCenter+4, xCenter + i, yCenter-4));
-                    group.getChildren().add(new Line(xCenter - i, yCenter+4, xCenter - i, yCenter-4));
-                }
-                if (i < height / 2) {
-                    group.getChildren().add(new Line(xCenter + 4, yCenter + i, xCenter - 4, yCenter + i));
-                    group.getChildren().add(new Line(xCenter + 4, yCenter - i, xCenter - 4, yCenter - i));
-                }
-            } else {
-                if (i < width / 2) {
-                    group.getChildren().add(new Line(xCenter + i, yCenter + 2, xCenter + i, yCenter - 2));
-                    group.getChildren().add(new Line(xCenter - i, yCenter + 2, xCenter - i, yCenter - 2));
-                }
-                if (i < height / 2) {
-                    group.getChildren().add(new Line(xCenter + 2, yCenter + i, xCenter - 2, yCenter + i));
-                    group.getChildren().add(new Line(xCenter + 2, yCenter - i, xCenter - 2, yCenter - i));
-                }
-            }
-        }
-    }
-
 
     //accurate
     private double getDelta(MathFunction f) {
@@ -230,65 +291,6 @@ public class TestMain extends Application {
         return f.count(BigDecimal.valueOf(2))
                 .subtract(f.count(BigDecimal.valueOf(1)))
                         .doubleValue();
-    }
-
-
-    //all double values became BigDecimal
-    private Line drawFuncGraph(int height, int width, BigDecimal xCoef, BigDecimal yCoef, BigDecimal freeCoef){
-        BigDecimal scaler = BigDecimal.valueOf(30);
-        BigDecimal halfHeight = BigDecimal.valueOf(height).divide(BigDecimal.valueOf(2));
-        BigDecimal halfWidth = BigDecimal.valueOf(width).divide(BigDecimal.valueOf(2));
-        MathFunctionBD f = getStraightFunc(xCoef, yCoef, freeCoef);
-        System.out.println("\nDelta y = " + getDelta(f));
-
-        if (f != null && Math.abs(getDelta(f)) >= 1) { //yCoef != 0 & func with xVariable fits in height size
-            if ((f = getStraightFunc(yCoef, xCoef, freeCoef)) != null) {        //xCoef != 0
-                System.out.println("Delta x = " + getDelta(f));
-                return new Line(
-                        f.count(halfHeight)
-                                .add(halfWidth)
-                                .doubleValue(),
-                        0,
-                        f.count(halfHeight.negate())
-                                .add(halfWidth)
-                                .doubleValue(),
-                        height
-                );
-            } else {            //xCoef == 0
-                double yVal = freeCoef.divide(yCoef.multiply(BigDecimal.valueOf(-1)))
-                        .add(halfHeight)
-                        .doubleValue();
-                return new Line(
-                        0,
-                        yVal,
-                        width,
-                        yVal
-                );
-            }
-        } else if(f != null){
-            return new Line(
-                    0,
-                    f.count(halfWidth.negate()).negate()
-                            .add(halfHeight)
-                            .doubleValue(),
-                    width,
-                    f.count(halfWidth).negate()
-                            .add(halfHeight)
-                            .doubleValue()
-            );
-        } else if(!xCoef.equals(0)){        // yCoef == 0 & xCoef != 0
-            return new Line(
-                    freeCoef.divide(yCoef.negate())
-                            .add(halfWidth)
-                            .doubleValue(),
-                    0,
-                    freeCoef.divide(yCoef)
-                            .add(halfWidth)
-                            .doubleValue(),
-                    height
-            );
-        }
-        throw new RuntimeException("Cant draw graph");
     }
 
     interface MathFunctionBD {
@@ -302,16 +304,13 @@ public class TestMain extends Application {
         private double x;
         private double y;
 
+        Coordinates() {
+
+        }
+
         Coordinates(double x, double y) {
             this.x = x;
             this.y = y;
-        }
-
-        private double getX(){
-            return x;
-        }
-        private double getY(){
-            return y;
         }
     }
 
