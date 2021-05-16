@@ -2,10 +2,13 @@ import javafx.application.Application;
 import javafx.geometry.Bounds;
 import javafx.scene.Group;
 import javafx.scene.Scene;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Shape;
 import javafx.scene.text.Text;
+import javafx.scene.transform.Scale;
 import javafx.stage.Stage;
 
 import java.math.BigDecimal;
@@ -16,7 +19,7 @@ public class TestMain extends Application {
 
     private Stage st;
     private Scene sc;
-    private Group group;
+    private Pane group;
     private double[][] m;
     private int height = 720;
     private int width = 1080;
@@ -35,10 +38,9 @@ public class TestMain extends Application {
 
     @Override
     public void start(Stage stage) {
-
         stage.setTitle("Chart");
         this.st = stage;
-        this.group = new Group();
+        this.group = new Pane();
 
         Scene scene = new Scene(group);
         this.sc = scene;
@@ -49,13 +51,13 @@ public class TestMain extends Application {
 
 //        drawFunc(graph, height, width, f);
 //        getGraphSolve(graph, height, width, this.m);
-        getGraphSolve(height, width, new double[][]{{10,1,8},
-                                                    {1,2,9}});
+        getGraphSolve(new double[][]{{10,1,8},
+                                     {1,2,9}});
         stage.setScene(scene);
         stage.show();
     }
 
-    private void getGraphSolve(int height, int width, double[][] m) {
+    private void getGraphSolve(double[][] m) {
         if (m.length != 2 && m[0].length != 3)
             throw new RuntimeException("Given slae have more or less than two variables and two equations");
         drawCoordinates(height, width);
@@ -76,9 +78,8 @@ public class TestMain extends Application {
                 BigDecimal.valueOf(m[1][2])
         );
 
-        Shape s = Line.union(graph1,graph2);
-        
-        System.out.println("Stage shape center coordinates:x="+s.getBoundsInParent().getCenterX() + ", y=" + s.getBoundsInParent().getCenterY());
+
+        showSceneCrossCoordinates(graph1,graph2);
         showStageCrossCoordinates(graph1,graph2);
         designateCrossDot(graph1, graph2);
         group.getChildren().addAll(graph1, graph2);
@@ -128,10 +129,10 @@ public class TestMain extends Application {
         BigDecimal scaler = BigDecimal.valueOf(10);
         BigDecimal halfHeight = BigDecimal.valueOf(height).divide(BigDecimal.valueOf(2));
         BigDecimal halfWidth = BigDecimal.valueOf(width).divide(BigDecimal.valueOf(2));
-        MathFunctionBD f = getStraightFunc(xCoef, yCoef, freeCoef,scaler);
+        MathFunctionBD f = getStraightFunc(xCoef, yCoef, freeCoef);
         System.out.println("\nDelta y = " + getDelta(f));
 
-        if (f != null && Math.abs(getDelta(f)) >= 1) { //yCoef != 0 & func with xVariable fits in height size
+        if (f != null && Math.abs(getDelta(f)) >= 1) { //yCoef != 0 & func with xVariable doesnt fit in height size
             if ((f = getStraightFunc(yCoef, xCoef, freeCoef)) != null) {        //xCoef != 0
                 System.out.println("Delta x = " + getDelta(f));
                 start.x = f.count(halfHeight)
@@ -182,7 +183,7 @@ public class TestMain extends Application {
     private void subscribeGraph(Line graph, String text) {
         Text t = new Text(graph.getStartX() + 50,graph.getStartY() + 50,text);
         t.setStroke(Color.RED);
-        ((Group)graph.getParent()).getChildren().add(t);
+        ((Pane)graph.getParent()).getChildren().add(t);
     }
 
     private MathFunction getStraightFunc(double varCoef, double denominator, double freeVal){

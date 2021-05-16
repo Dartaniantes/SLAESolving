@@ -310,9 +310,9 @@ public class View extends Application {
         if (matrix.length != 2 & matrix[0].length != 3)
             throw new RuntimeException("Matrix has less or more than two variables to solve it by chart");
         else {
-            TestMain tm = new TestMain(matrix);
-            tm.start(new Stage());
-            double e1x = matrix[0][2]/matrix[0][0];    //e1y = 0
+            ChartSolve cs = new ChartSolve(matrix);
+            cs.start(new Stage());
+            /*double e1x = matrix[0][2]/matrix[0][0];    //e1y = 0
             double e1y = matrix[0][2] / matrix[0][1];  //e1x = 0
             double e2x = matrix[1][2]/ matrix[1][0];   // e2y = 0
             double e2y = matrix[1][2]/ matrix[1][1];   // e2x = 0
@@ -339,7 +339,7 @@ public class View extends Application {
             chartStage.setWidth(500);
             chartStage.setHeight(500);
             chartStage.setScene(chartScene);
-            chartStage.show();
+            chartStage.show();*/
         }
     }
 
