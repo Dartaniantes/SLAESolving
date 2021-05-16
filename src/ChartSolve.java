@@ -342,6 +342,8 @@ public class ChartSolve extends Application {
             worldEnd.x = worldMaxX;
             worldEnd.y = f.count(wMaxX).doubleValue();
         } else if(!xCoef.equals(0)){
+            ERROR HERE LOOOK!!!!!!
+                    //WTF??? YOU USE HERE / yCoef with knowing its eq 0!!!!!
             worldStart.x = freeCoef.divide(yCoef).doubleValue();
             worldStart.y = worldMinY;
             worldEnd.x = freeCoef.divide(yCoef).doubleValue();
@@ -353,8 +355,8 @@ public class ChartSolve extends Application {
     }
 
     private MathFunctionBD getStraightFunc(BigDecimal varCoef, BigDecimal denominator, BigDecimal freeVal){
-        System.out.println(denominator.equals(BigDecimal.valueOf(0)));
-        if (denominator.equals(BigDecimal.valueOf(0)))
+        System.out.println("denominator == 0"+denominator.equals(BigDecimal.valueOf(0)));
+        if (denominator.doubleValue() == 0)
             return null;
         System.out.println(varCoef + " " + denominator + " " + freeVal);
         try {
