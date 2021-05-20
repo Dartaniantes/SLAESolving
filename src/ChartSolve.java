@@ -9,10 +9,12 @@ import javafx.scene.paint.Color;
 import javafx.scene.robot.Robot;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Shape;
+import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 import java.math.BigDecimal;
+import java.math.MathContext;
 import java.math.RoundingMode;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -72,12 +74,25 @@ public class ChartSolve extends Application {
         BigDecimal[][] matrix = toBigDecMatrix(m);
         Line l1 = drawFuncGraph(matrix[0][0], matrix[0][1], matrix[0][2]);
         Line l2 = drawFuncGraph(matrix[1][0], matrix[1][1], matrix[1][2]);
-        System.out.println("Intersects:"+l1.intersects(l2.getStartX(), l2.getStartY(), l2.getEndX(), l2.getEndY()));
         Shape intersection = Line.intersect(l1, l2);
-//        if (l1.intersects(l2.getStartX(), l2.getStartY(), l2.getEndX(), l2.getEndY())) {
+        Coordinates screenResult;
         if(!intersection.getBoundsInParent().isEmpty()){
             screenResult = new Coordinates(intersection.getBoundsInLocal().getCenterX(), intersection.getBoundsInLocal().getCenterY());
             worldResult = screenToWorld(screenResult);
+            if (Math.abs(worldResult.x) > worldMaxX | Math.abs(worldResult.y) > worldMaxY) {
+                double newSize;
+                if (worldResult.x > worldResult.y)
+                    newSize = worldResult.x + worldResult.x / 3;
+                 else
+                    newSize = worldResult.y + worldResult.y / 3;
+
+                worldMaxX = newSize;
+                worldMinX = -newSize;
+                worldMaxY = newSize;
+                worldMinY = -newSize;
+                update();
+                return;
+            }
             designateWorldDot(worldResult);
             System.out.println(worldResult.toString());
         }
@@ -89,6 +104,16 @@ public class ChartSolve extends Application {
 
         updateWith(l1,l2);
     }
+
+    private boolean isSolvable(BigDecimal[][] m) {
+        return m[0][0].divide(m[1][0]) != m[0][1].divide(m[1][1]);
+    }
+
+    /*private boolean fitsIntoCurrSystem(Line l) {
+
+
+    }*/
+
     private void designateWorldDot(Coordinates worldDot) {
         Coordinates horStart = worldToScreen(new Coordinates(worldDot.x,0));
         Coordinates horEnd = worldToScreen(new Coordinates(worldDot.x, worldDot.y));
@@ -122,7 +147,7 @@ public class ChartSolve extends Application {
         worldPane.getChildren().addAll(horizontal, vertical, xString, yString);
     }
 
-    public double round(double value, int places) {
+    private double round(double value, int places) {
         if (places < 0) throw new IllegalArgumentException();
         BigDecimal bd = BigDecimal.valueOf(value);
         bd = bd.setScale(places, RoundingMode.HALF_UP);
@@ -248,7 +273,11 @@ public class ChartSolve extends Application {
         int bigStrWidth = 3;
         double dashSize = 0.2;
         Line l;
-        Coordinates screenS, screenE;
+        Text xAxisName = new Text();
+        Text yAxisName = new Text();
+        xAxisName.setFont(Font.font(18));
+        yAxisName.setFont(Font.font(18));
+        Coordinates screenS, screenE, axisNameScreenLoc;
         for (double x = worldMinX; x <= worldMaxX; x++) {
             if (x != 0) {
                 screenS = worldToScreen(x, -dashSize);
@@ -260,6 +289,11 @@ public class ChartSolve extends Application {
                 screenE = worldToScreen(x, worldMaxY);
                 l = new Line(screenS.x, screenS.y, screenE.x, screenE.y);
                 l.setStrokeWidth(bigStrWidth);
+                xAxisName.setText("X");
+                axisNameScreenLoc = worldToScreen(worldMaxX,0);
+                xAxisName.setX(axisNameScreenLoc.x - xAxisName.getLayoutBounds().getWidth() - 3);
+                xAxisName.setY(axisNameScreenLoc.y + xAxisName.getLayoutBounds().getHeight());
+                worldPane.getChildren().add(xAxisName);
             }
             worldPane.getChildren().add(l);
         }
@@ -274,6 +308,11 @@ public class ChartSolve extends Application {
                 screenE = worldToScreen(worldMaxX, y);
                 l = new Line(screenS.x, screenS.y, screenE.x, screenE.y);
                 l.setStrokeWidth(bigStrWidth);
+                yAxisName.setText("Y");
+                axisNameScreenLoc = worldToScreen(0, worldMaxY);
+                yAxisName.setX(axisNameScreenLoc.x+4);
+                yAxisName.setY(axisNameScreenLoc.y + yAxisName.getLayoutBounds().getHeight()-5);
+                worldPane.getChildren().add(yAxisName);
             }
             worldPane.getChildren().add(l);
         }
@@ -309,28 +348,25 @@ public class ChartSolve extends Application {
     }
 
     private Line drawFuncGraph(BigDecimal xCoef, BigDecimal yCoef, BigDecimal freeCoef){
-        if(yCoef.equals(BigDecimal.valueOf(0)) & xCoef.equals(BigDecimal.valueOf(0)))
+        if(yCoef.doubleValue() == 0 & xCoef.doubleValue() == 0)
             throw new RuntimeException("Cant draw graph");
         Coordinates worldStart = new Coordinates();
         Coordinates worldEnd = new Coordinates();
         Coordinates screenStart, screenEnd;
-        BigDecimal wMinY = BigDecimal.valueOf(worldMinY);
-        BigDecimal wMaxY = BigDecimal.valueOf(worldMaxY);
-        BigDecimal wMinX = BigDecimal.valueOf(worldMinX);
-        BigDecimal wMaxX = BigDecimal.valueOf(worldMaxX);
+        BigDecimal wMinYBD = BigDecimal.valueOf(worldMinY);
+        BigDecimal wMaxYBD = BigDecimal.valueOf(worldMaxY);
+        BigDecimal wMinXBD = BigDecimal.valueOf(worldMinX);
+        BigDecimal wMaxXBD = BigDecimal.valueOf(worldMaxX);
         MathFunctionBD f = getStraightFunc(xCoef, yCoef, freeCoef);
 
         if (f != null && Math.abs(getDelta(f)) >= 1) { //yCoef != 0 & func with xVariable doesnt fit in height size
             if ((f = getStraightFunc(yCoef, xCoef, freeCoef)) != null) {        //xCoef != 0
-                worldStart.x = f.count(wMinY)
-                        .doubleValue();
+                worldStart.x = f.count(wMinYBD).doubleValue();
                 worldStart.y = worldMinY;
-                worldEnd.x = f.count(wMaxY)
-                        .doubleValue();
+                worldEnd.x = f.count(wMaxYBD).doubleValue();
                 worldEnd.y = worldMaxY;
             } else {            //xCoef == 0
-                double yVal = freeCoef.divide(yCoef)
-                        .doubleValue();
+                double yVal = freeCoef.divide(yCoef).doubleValue();
                 worldStart.x = worldMinX;
                 worldStart.y = yVal;
                 worldEnd.x = worldMaxX;
@@ -338,15 +374,16 @@ public class ChartSolve extends Application {
             }
         } else if(f != null){
             worldStart.x = worldMinX;
-            worldStart.y = f.count(wMinX).doubleValue();
+            worldStart.y = f.count(wMinXBD).doubleValue();
             worldEnd.x = worldMaxX;
-            worldEnd.y = f.count(wMaxX).doubleValue();
-        } else if(!xCoef.equals(0)){
-            ERROR HERE LOOOK!!!!!!
-                WTF??? YOU USE HERE / yCoef with knowing its eq 0!!!!!
-            worldStart.x = freeCoef.divide(yCoef).doubleValue();
+            worldEnd.y = f.count(wMaxXBD).doubleValue();
+        } else if(xCoef.doubleValue() != 0){
+            /*ERROR HERE LOOOK!!!!!!
+                WTF??? YOU USE HERE / yCoef with knowing its eq 0!!!!!*/
+            double x = freeCoef.divide(xCoef, 2, RoundingMode.HALF_UP).doubleValue();
+            worldStart.x = x;
             worldStart.y = worldMinY;
-            worldEnd.x = freeCoef.divide(yCoef).doubleValue();
+            worldEnd.x = x;
             worldEnd.y = worldMaxY;
         }
         screenStart = worldToScreen(worldStart);
@@ -355,16 +392,9 @@ public class ChartSolve extends Application {
     }
 
     private MathFunctionBD getStraightFunc(BigDecimal varCoef, BigDecimal denominator, BigDecimal freeVal){
-        System.out.println("denominator == 0"+(denominator.doubleValue() == 0));
         if (denominator.doubleValue() == 0)
             return null;
-        System.out.println(varCoef + " " + denominator + " " + freeVal);
-        try {
-            return var -> (freeVal.subtract(varCoef.multiply(var))).divide(denominator, 2, RoundingMode.HALF_UP);
-        } catch (ArithmeticException ae) {
-            System.out.println("AE thrown");
-            return null;
-        }
+        return var -> (freeVal.subtract(varCoef.multiply(var))).divide(denominator, 2, RoundingMode.HALF_UP);
     }
 
     private double getDelta(MathFunctionBD f) {
