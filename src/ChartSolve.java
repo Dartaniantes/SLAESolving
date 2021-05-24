@@ -14,7 +14,6 @@ import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 import java.math.BigDecimal;
-import java.math.MathContext;
 import java.math.RoundingMode;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -64,7 +63,6 @@ public class ChartSolve extends Application {
         offsetX = -width/2/scaleX;
         offsetY = -height/2/scaleY;
         setOnActions();
-        drawLines();
         /*this.slae = new double[][]{{-10,1,8},
                 {1,-2,9}};*/
         solve(slae);
@@ -75,8 +73,29 @@ public class ChartSolve extends Application {
         Line l1 = drawFuncGraph(matrix[0][0], matrix[0][1], matrix[0][2]);
         Line l2 = drawFuncGraph(matrix[1][0], matrix[1][1], matrix[1][2]);
         Shape intersection = Line.intersect(l1, l2);
-        Coordinates screenResult;
-        if(!intersection.getBoundsInParent().isEmpty()){
+        if (isSolvable(matrix)) {
+            double maxCoordinate = getBiggestWorldCoordinate(l1, l2);
+            while (intersection.getBoundsInParent().isEmpty()) {
+                expandWorld(maxCoordinate);
+                l1 = drawFuncGraph(matrix[0][0], matrix[0][1], matrix[0][2]);
+                l2 = drawFuncGraph(matrix[1][0], matrix[1][1], matrix[1][2]);
+                intersection = Line.intersect(l1, l2);
+            }
+            screenResult = new Coordinates(intersection.getBoundsInParent().getCenterX(), intersection.getBoundsInParent().getCenterY());
+            worldResult = screenToWorld(screenResult);
+            designateWorldDot(worldResult);
+        } else {
+            double maxCoordinate = getBiggestWorldCoordinate(l1);
+            while(!fitsIntoCurrSystem(l1)) {
+                expandWorld(maxCoordinate);
+            }
+            maxCoordinate = getBiggestWorldCoordinate(l2);
+            while (!fitsIntoCurrSystem(l2)) {
+                expandWorld(maxCoordinate);
+            }
+        }
+
+        /*if(!intersection.getBoundsInParent().isEmpty()){
             screenResult = new Coordinates(intersection.getBoundsInLocal().getCenterX(), intersection.getBoundsInLocal().getCenterY());
             worldResult = screenToWorld(screenResult);
             if (Math.abs(worldResult.x) > worldMaxX | Math.abs(worldResult.y) > worldMaxY) {
@@ -95,7 +114,7 @@ public class ChartSolve extends Application {
             }
             designateWorldDot(worldResult);
             System.out.println(worldResult.toString());
-        }
+        }*/
 
         l1.setStroke(Color.BLUE);
         l1.setStrokeWidth(2);
@@ -105,14 +124,48 @@ public class ChartSolve extends Application {
         updateWith(l1,l2);
     }
 
+    private void expandWorld(double addSize){
+        worldMaxX += addSize;
+        worldMinX -= addSize;
+        worldMaxY += addSize;
+        worldMinY -= addSize;
+    }
+
     private boolean isSolvable(BigDecimal[][] m) {
         return m[0][0].divide(m[1][0]) != m[0][1].divide(m[1][1]);
     }
 
-    /*private boolean fitsIntoCurrSystem(Line l) {
+    private boolean fitsIntoCurrSystem(Line l) {
+        return l.getStartX() < worldMaxX &&
+                l.getStartX() > worldMinX &&
+                l.getEndX() < worldMaxX &&
+                l.getEndX() > worldMinX &&
+                l.getStartY() < worldMaxY &&
+                l.getStartY() > worldMinY &&
+                l.getEndY() < worldMaxY &&
+                l.getEndY() > worldMinY;
+    }
 
 
-    }*/
+    private double getBiggestWorldCoordinate(Line l) {
+        Coordinates s = screenToWorld(l.getStartX(), l.getStartY());
+        Coordinates e = screenToWorld(l.getEndX(), l.getEndY());
+        double max = s.x;
+        double num;
+        if((num = s.y) > max)
+            max = num;
+        if((num = e.x) > max)
+            max = num;
+        if((num = e.y) > max)
+            max = num;
+        return max;
+    }
+
+    private double getBiggestWorldCoordinate(Line l1, Line l2) {
+        double l1c = getBiggestWorldCoordinate(l1);
+        double l2c = getBiggestWorldCoordinate(l2);
+        return Math.max(l1c, l2c);
+    }
 
     private void designateWorldDot(Coordinates worldDot) {
         Coordinates horStart = worldToScreen(new Coordinates(worldDot.x,0));
@@ -250,18 +303,20 @@ public class ChartSolve extends Application {
             offsetY -= (mouseWorldBeforeZoom.y - mouseWorldAfterZoom.y);
 
             System.out.println("Offset:" + offsetX + " | " + offsetY);
-            update();
-
-
             System.out.println("Scale:" + scaleX  + " | " + scaleY + "\n");
+            update();
 
         });
     }
 
     private void update() {
+        updateWorld();
+        solve(slae);
+    }
+
+    private void updateWorld() {
         worldPane.getChildren().clear();
         drawLines();
-        solve(slae);
     }
 
     private void updateWith(Node... n) {
@@ -428,9 +483,15 @@ public class ChartSolve extends Application {
         }
 
         public String toString() {
+            
             return "Coordinates:" + x + " | " + y;
         }
+        private double getBigger() {
+            return x >= y ? x : y;
+        }
     }
+
+    
 
 
 
