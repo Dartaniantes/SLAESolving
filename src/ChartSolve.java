@@ -78,19 +78,19 @@ public class ChartSolve extends Application {
         intersection = Line.intersect(l1, l2);
         if (hasSingleSolution(matrix)) {
             double maxCoordinate = getBiggestWorldCoordinate(l1, l2);
-            if (intersection.getBoundsInParent().isEmpty()) {
+            /*if (intersection.getBoundsInParent().isEmpty()) {
                 expandWorld(maxCoordinate);
                 update();
                 return;
-            }            /*while (intersection.getBoundsInParent().isEmpty()) {
+            } */
+            while (intersection.getBoundsInParent().isEmpty()) {
                 expandWorld(maxCoordinate);
                 l1 = drawFuncGraph(matrix[0][0], matrix[0][1], matrix[0][2]);
                 l2 = drawFuncGraph(matrix[1][0], matrix[1][1], matrix[1][2]);
                 intersection = Line.intersect(l1, l2);
-            }*/
+            }
             screenResult = new Coordinates(intersection.getBoundsInParent().getCenterX(), intersection.getBoundsInParent().getCenterY());
             worldResult = screenToWorld(screenResult);
-            designateWorldDot(worldResult);
         } else {
             double maxCoordinate = getBiggestWorldCoordinate(l1);
             while(!fitsIntoCurrSystem(l1)) {
@@ -102,6 +102,7 @@ public class ChartSolve extends Application {
             }
         }
         updateWorld();
+        designateWorldDot(worldResult);
 
         /*if(!intersection.getBoundsInParent().isEmpty()){
             screenResult = new Coordinates(intersection.getBoundsInLocal().getCenterX(), intersection.getBoundsInLocal().getCenterY());
@@ -196,6 +197,7 @@ public class ChartSolve extends Application {
 
         Coordinates xStringLoc = worldToScreen(new Coordinates(worldDot.x, 0));
         Coordinates yStringLoc = worldToScreen(new Coordinates(0, worldDot.y));
+
         Text xString = new Text(Double.toString(round(worldDot.x,2)));
         xString.setStroke(Color.RED);
         xString.setX(xStringLoc.x - xString.getLayoutBounds().getWidth()/2);
