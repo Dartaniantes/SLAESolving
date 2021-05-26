@@ -117,11 +117,14 @@ public class ChartSolve extends Application {
     }
 
     private boolean isVisibleInCurrSystem(Line l) {
-        double visBorderCompressX = worldMaxX * 0.2;
-        double visBorderCompressY = worldMaxY*0.2;
+        double visBorderX = worldMaxX * 0.8;
+        double visBorderY = worldMaxY*0.8;
 
-        Coordinates screenRectCoord = worldToScreen(worldMinX+visBorderCompressX, worldMaxY - visBorderCompressY);
-        Coordinates rectScreenSize = worldToScreen(2 * (worldMaxX - visBorderCompressX), 2 * (worldMaxY - visBorderCompressY));
+
+        Coordinates screenRectCoord = worldToScreen(-visBorderX, visBorderY);
+        //this is incorrect. Casting legnth as coordinates is incorrect
+        Coordinates rectScreenSize = worldToScreen(2 * visBorderX, 2 * visBorderY);
+
         Rectangle visibleBorder = new Rectangle(rectScreenSize.x, rectScreenSize.y,screenRectCoord.x, screenRectCoord.y);
         visibleBorder.setStrokeWidth(2);
         visibleBorder.setStroke(Color.AQUA);
