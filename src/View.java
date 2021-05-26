@@ -352,9 +352,9 @@ public class View extends Application {
         String var;
         for (int i = 0; i < length; i++)
             for (int j = 0; j < width; j++) {
-                if (j < width-1 && gridInputIsValid(var = manCoefsF[i][j].getText()))
+                if (j < width-1 && gridInputIsValid(var = manCoefsF[i][j].getText().trim()))
                     matrix[i][j] = Double.parseDouble(var);
-                else if(j == width-1 && gridInputIsValid(var = manFreeValsF[i].getText()))
+                else if(j == width-1 && gridInputIsValid(var = manFreeValsF[i].getText().trim()))
                     matrix[i][j] = Double.parseDouble(var);
                 else
                     throw new InvalidInputException("Matrix grid must contain only decimal or float value followed by '-' if needed");
@@ -363,7 +363,7 @@ public class View extends Application {
     }
 
     private boolean gridInputIsValid(String s) {
-        return s.matches("-?\\d+(.\\d+)?");
+        return s.matches("-?\\d+([.,]\\d+)?");
     }
 
     public String resultToString(double[] result) {

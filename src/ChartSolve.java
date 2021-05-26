@@ -8,6 +8,7 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.robot.Robot;
 import javafx.scene.shape.Line;
+import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.Shape;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
@@ -58,8 +59,8 @@ public class ChartSolve extends Application {
     public void start(Stage stage) {
         this.stage = stage;
         prepareWindow();
-        scaleX = 40;
-        scaleY = 40;
+        /*scaleX = 10;
+        scaleY = 10;*/
 
         offsetX = -width/2/scaleX;
         offsetY = -height/2/scaleY;
@@ -75,54 +76,37 @@ public class ChartSolve extends Application {
         BigDecimal[][] matrix = toBigDecMatrix(m);
         l1 = drawFuncGraph(matrix[0][0], matrix[0][1], matrix[0][2]);
         l2 = drawFuncGraph(matrix[1][0], matrix[1][1], matrix[1][2]);
-        intersection = Line.intersect(l1, l2);
         if (hasSingleSolution(matrix)) {
+            intersection = Line.intersect(l1, l2);
             double maxCoordinate = getBiggestWorldCoordinate(l1, l2);
-            if (intersection.getBoundsInParent().isEmpty()) {
-                expandWorld(maxCoordinate);
-                update();
-                return;
-            }            /*while (intersection.getBoundsInParent().isEmpty()) {
+            while (intersection.getBoundsInParent().isEmpty()) {
                 expandWorld(maxCoordinate);
                 l1 = drawFuncGraph(matrix[0][0], matrix[0][1], matrix[0][2]);
+                isVisibleInCurrSystem(l1);
                 l2 = drawFuncGraph(matrix[1][0], matrix[1][1], matrix[1][2]);
                 intersection = Line.intersect(l1, l2);
-            }*/
+            }
             screenResult = new Coordinates(intersection.getBoundsInParent().getCenterX(), intersection.getBoundsInParent().getCenterY());
             worldResult = screenToWorld(screenResult);
+            updateWorld();
+            isVisibleInCurrSystem(l1);
             designateWorldDot(worldResult);
         } else {
-            double maxCoordinate = getBiggestWorldCoordinate(l1);
-            while(!fitsIntoCurrSystem(l1)) {
+            double maxCoordinate = getBiggestWorldCoordinate(l1, l2);
+            /*while(!fitsIntoCurrSystem(l1))
                 expandWorld(maxCoordinate);
-            }
+
             maxCoordinate = getBiggestWorldCoordinate(l2);
-            while (!fitsIntoCurrSystem(l2)) {
+            while (!fitsIntoCurrSystem(l2))
+                expandWorld(maxCoordinate);*/
+            while (!isVisibleInCurrSystem(l1) || !isVisibleInCurrSystem(l2)) {
                 expandWorld(maxCoordinate);
+                System.out.println("World expanding1");
+                l1 = drawFuncGraph(matrix[0][0], matrix[0][1], matrix[0][2]);
+                l2 = drawFuncGraph(matrix[1][0], matrix[1][1], matrix[1][2]);
             }
+            updateWorld();
         }
-        updateWorld();
-
-        /*if(!intersection.getBoundsInParent().isEmpty()){
-            screenResult = new Coordinates(intersection.getBoundsInLocal().getCenterX(), intersection.getBoundsInLocal().getCenterY());
-            worldResult = screenToWorld(screenResult);
-            if (Math.abs(worldResult.x) > worldMaxX | Math.abs(worldResult.y) > worldMaxY) {
-                double newSize;
-                if (worldResult.x > worldResult.y)
-                    newSize = worldResult.x + worldResult.x / 3;
-                 else
-                    newSize = worldResult.y + worldResult.y / 3;
-
-                worldMaxX = newSize;
-                worldMinX = -newSize;
-                worldMaxY = newSize;
-                worldMinY = -newSize;
-                update();
-                return;
-            }
-            designateWorldDot(worldResult);
-            System.out.println(worldResult.toString());
-        }*/
 
         l1.setStroke(Color.BLUE);
         l1.setStrokeWidth(2);
@@ -130,6 +114,20 @@ public class ChartSolve extends Application {
         l2.setStrokeWidth(2);
 
         updateWith(l1,l2);
+    }
+
+    private boolean isVisibleInCurrSystem(Line l) {
+        double visBorderCompressX = worldMaxX * 0.2;
+        double visBorderCompressY = worldMaxY*0.2;
+
+        Coordinates screenRectCoord = worldToScreen(worldMinX+visBorderCompressX, worldMaxY - visBorderCompressY);
+        Coordinates rectScreenSize = worldToScreen(2 * (worldMaxX - visBorderCompressX), 2 * (worldMaxY - visBorderCompressY));
+        Rectangle visibleBorder = new Rectangle(rectScreenSize.x, rectScreenSize.y,screenRectCoord.x, screenRectCoord.y);
+        visibleBorder.setStrokeWidth(2);
+        visibleBorder.setStroke(Color.AQUA);
+        visibleBorder.setFill(null);
+        worldPane.getChildren().add(visibleBorder);
+        return !Line.intersect(visibleBorder, l).getBoundsInParent().isEmpty();
     }
 
     private void expandWorld(double addSize){
