@@ -91,6 +91,8 @@ public class ChartSolve extends Application {
             }
             screenResult = new Coordinates(intersection.getBoundsInParent().getCenterX(), intersection.getBoundsInParent().getCenterY());
             worldResult = screenToWorld(screenResult);
+            updateWorld();
+            designateWorldDot(worldResult);
         } else {
             double maxCoordinate = getBiggestWorldCoordinate(l1);
             while(!fitsIntoCurrSystem(l1)) {
@@ -100,9 +102,9 @@ public class ChartSolve extends Application {
             while (!fitsIntoCurrSystem(l2)) {
                 expandWorld(maxCoordinate);
             }
+            updateWorld();
         }
-        updateWorld();
-        designateWorldDot(worldResult);
+
 
         /*if(!intersection.getBoundsInParent().isEmpty()){
             screenResult = new Coordinates(intersection.getBoundsInLocal().getCenterX(), intersection.getBoundsInLocal().getCenterY());
@@ -348,20 +350,22 @@ public class ChartSolve extends Application {
     private void drawLines() {
         int smallStrWidth = 1;
         int bigStrWidth = 3;
-        double dashSize = 0.2;
-        Line l;
+        double dashSize = worldMaxX/30;
+        int gap = (int)worldMaxX/10;
+        Line l = null;
         Text xAxisName = new Text();
         Text yAxisName = new Text();
         xAxisName.setFont(Font.font(18));
         yAxisName.setFont(Font.font(18));
         Coordinates screenS, screenE, axisNameScreenLoc;
         for (int x =(int) worldMinX; x <= worldMaxX; x++) {
-            if (x != 0) {
+            if (x != 0 & x%gap == 0) {
                 screenS = worldToScreen(x, -dashSize);
                 screenE = worldToScreen(x, dashSize);
                 l = new Line(screenS.x, screenS.y, screenE.x, screenE.y);
                 l.setStrokeWidth(smallStrWidth);
-            } else {
+                worldPane.getChildren().add(l);
+            } else if (x == 0){
                 screenS = worldToScreen(x, worldMinY);
                 screenE = worldToScreen(x, worldMaxY);
                 l = new Line(screenS.x, screenS.y, screenE.x, screenE.y);
@@ -371,16 +375,17 @@ public class ChartSolve extends Application {
                 xAxisName.setX(axisNameScreenLoc.x - xAxisName.getLayoutBounds().getWidth() - 3);
                 xAxisName.setY(axisNameScreenLoc.y + xAxisName.getLayoutBounds().getHeight());
                 worldPane.getChildren().add(xAxisName);
+                worldPane.getChildren().add(l);
             }
-            worldPane.getChildren().add(l);
         }
         for (int y = (int)worldMinY; y <= worldMaxY; y++) {
-            if (y != 0) {
+            if (y != 0 & y%gap == 0) {
                 screenS = worldToScreen(-dashSize,y);
                 screenE = worldToScreen(dashSize, y);
                 l = new Line(screenS.x, screenS.y, screenE.x, screenE.y);
                 l.setStrokeWidth(smallStrWidth);
-            } else {
+                worldPane.getChildren().add(l);
+            } else if (y == 0){
                 screenS = worldToScreen(worldMinX, y);
                 screenE = worldToScreen(worldMaxX, y);
                 l = new Line(screenS.x, screenS.y, screenE.x, screenE.y);
@@ -389,11 +394,11 @@ public class ChartSolve extends Application {
                 axisNameScreenLoc = worldToScreen(0, worldMaxY);
                 yAxisName.setX(axisNameScreenLoc.x+4);
                 yAxisName.setY(axisNameScreenLoc.y + yAxisName.getLayoutBounds().getHeight()-5);
+                worldPane.getChildren().add(l);
                 worldPane.getChildren().add(yAxisName);
 
             }
 
-            worldPane.getChildren().add(l);
         }
 
     }
