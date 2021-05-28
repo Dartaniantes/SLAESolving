@@ -55,12 +55,16 @@ public class ChartSolve extends Application {
         this.slae = matrix;
     }
 
+    public ChartSolve() {
+
+    }
+
     @Override
     public void start(Stage stage) {
         this.stage = stage;
         prepareWindow();
-        /*scaleX = 10;
-        scaleY = 10;*/
+        scaleX = 10;
+        scaleY = 10;
 
         offsetX = -width/2/scaleX;
         offsetY = -height/2/scaleY;
@@ -82,26 +86,21 @@ public class ChartSolve extends Application {
 
             while (intersection.getBoundsInParent().isEmpty()) {
                 expandWorld(maxCoordinate);
+                equaliseWorldNStage();
                 l1 = drawFuncGraph(matrix[0][0], matrix[0][1], matrix[0][2]);
-                isVisibleInCurrSystem(l1);
                 l2 = drawFuncGraph(matrix[1][0], matrix[1][1], matrix[1][2]);
                 intersection = Line.intersect(l1, l2);
             }
             screenResult = new Coordinates(intersection.getBoundsInParent().getCenterX(), intersection.getBoundsInParent().getCenterY());
             worldResult = screenToWorld(screenResult);
             updateWorld();
+            equaliseWorldNStage();
             designateWorldDot(worldResult);
         } else {
             double maxCoordinate = getBiggestWorldCoordinate(l1, l2);
-            /*while(!fitsIntoCurrSystem(l1))
-                expandWorld(maxCoordinate);
-
-            maxCoordinate = getBiggestWorldCoordinate(l2);
-            while (!fitsIntoCurrSystem(l2))
-                expandWorld(maxCoordinate);*/
             while (!isVisibleInCurrSystem(l1) || !isVisibleInCurrSystem(l2)) {
                 expandWorld(maxCoordinate);
-                System.out.println("World expanding1");
+                equaliseWorldNStage();
                 l1 = drawFuncGraph(matrix[0][0], matrix[0][1], matrix[0][2]);
                 l2 = drawFuncGraph(matrix[1][0], matrix[1][1], matrix[1][2]);
             }
@@ -113,23 +112,34 @@ public class ChartSolve extends Application {
         l2.setStroke(Color.GREEN);
         l2.setStrokeWidth(2);
 
+
         updateWith(l1,l2);
     }
 
-    private boolean isVisibleInCurrSystem(Line l) {
-        double visBorderX = worldMaxX * 0.8;
-        double visBorderY = worldMaxY*0.8;
+    private void equaliseWorldNStage() {
+        scaleX = 0.49 * width / worldMaxX;
+        scaleY = 0.49 * height / worldMaxY;
+        centrate();
+    }
 
+    private void centrate() {
+        offsetX = -width/2/scaleX;
+        offsetY = -height/2/scaleY;
+    }
+
+    private boolean isVisibleInCurrSystem(Line l) {
+        double visBorderX = worldMaxX * 0.9;
+        double visBorderY = worldMaxY * 0.9;
 
         Coordinates screenRectCoord = worldToScreen(-visBorderX, visBorderY);
-        //this is incorrect. Casting legnth as coordinates is incorrect
-        Coordinates rectScreenSize = worldToScreen(2 * visBorderX, 2 * visBorderY);
+        double rectScreenWidth = visBorderX * 2 * scaleX;
+        double rectScreenHeight = visBorderY * 2 * scaleY;
 
-        Rectangle visibleBorder = new Rectangle(rectScreenSize.x, rectScreenSize.y,screenRectCoord.x, screenRectCoord.y);
-        visibleBorder.setStrokeWidth(2);
-        visibleBorder.setStroke(Color.AQUA);
-        visibleBorder.setFill(null);
-        worldPane.getChildren().add(visibleBorder);
+        Rectangle visibleBorder = new Rectangle(rectScreenWidth,rectScreenHeight);
+        visibleBorder.setX(screenRectCoord.x);
+        visibleBorder.setY(screenRectCoord.y);
+        visibleBorder.setWidth(rectScreenWidth);
+        visibleBorder.setHeight(rectScreenHeight);
         return !Line.intersect(visibleBorder, l).getBoundsInParent().isEmpty();
     }
 
@@ -285,8 +295,7 @@ public class ChartSolve extends Application {
             Coordinates mouseLoc = new Coordinates(cursorLoc.getX(), cursorLoc.getY());
             Coordinates mouseWorldBeforeZoom = screenToWorld(mouseLoc);
             if (ke.getCode().getChar().equals("R")) {
-                offsetX = -width/2/scaleX;
-                offsetY = -height/2/scaleY;
+                centrate();
                 System.out.println("Offset:" + offsetX + " | " + offsetY);
                 System.out.println("Screen click:" + cursorLoc.getX() + "|"+cursorLoc.getY());
                 System.out.println("World click:" + mouseWorldBeforeZoom.x + " | " + mouseWorldBeforeZoom.y + "\n");
@@ -334,6 +343,7 @@ public class ChartSolve extends Application {
         updateWorld();
         solve(slae);
     }
+
 
     private void updateWorld() {
         worldPane.getChildren().clear();
