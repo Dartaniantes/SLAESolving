@@ -1,3 +1,5 @@
+import Model.SLAEMethod;
+import Model.Model;
 import javafx.application.Application;
 import javafx.geometry.Point2D;
 import javafx.scene.Node;
@@ -24,7 +26,7 @@ public class ChartSolve extends Application {
     private StackPane root;
     private Pane worldPane;
     private AnchorPane infoPane;
-    private String title = "PanAndZoom";
+    private String title = "Chart Solve";
     private double height =720;
     private double width =  720;
 
@@ -68,16 +70,14 @@ public class ChartSolve extends Application {
 
         offsetX = -width/2/scaleX;
         offsetY = -height/2/scaleY;
-        setOnActions();
-        /*this.slae = new double[][]{{-10,1,8},
-                {1,-2,9}};*/
+//        setOnActions();
         update();
     }
 
 
-    private int  expandCounter = 0;
     private void solve(double[][] m) {
-        BigDecimal[][] matrix = toBigDecMatrix(m);
+        BigDecimal[][] matrix = toBigDecMatrix(Model.cloneMatrix(m));
+
         l1 = drawFuncGraph(matrix[0][0], matrix[0][1], matrix[0][2]);
         l2 = drawFuncGraph(matrix[1][0], matrix[1][1], matrix[1][2]);
         if (hasSingleSolution(matrix)) {
@@ -93,9 +93,19 @@ public class ChartSolve extends Application {
             }
             screenResult = new Coordinates(intersection.getBoundsInParent().getCenterX(), intersection.getBoundsInParent().getCenterY());
             worldResult = screenToWorld(screenResult);
+            if (worldMaxX - Math.abs(worldResult.x) < 3 || worldMaxY - Math.abs(worldResult.y) < 3) {
+                expandWorld(worldMaxX * 0.3);
+                equaliseWorldNStage();
+                l1 = drawFuncGraph(matrix[0][0], matrix[0][1], matrix[0][2]);
+                l2 = drawFuncGraph(matrix[1][0], matrix[1][1], matrix[1][2]);
+                intersection = Line.intersect(l1, l2);
+                screenResult = new Coordinates(intersection.getBoundsInParent().getCenterX(), intersection.getBoundsInParent().getCenterY());
+                worldResult = screenToWorld(screenResult);
+            }
+
+            System.out.println("WorldResutl  = " + worldResult.toString());
             updateWorld();
             equaliseWorldNStage();
-            designateWorldDot(worldResult);
         } else {
             double maxCoordinate = getBiggestWorldCoordinate(l1, l2);
             while (!isVisibleInCurrSystem(l1) || !isVisibleInCurrSystem(l2)) {
@@ -113,7 +123,10 @@ public class ChartSolve extends Application {
         l2.setStrokeWidth(2);
 
 
+
         updateWith(l1,l2);
+        if (hasSingleSolution(matrix))
+            designateWorldDot(worldResult);
     }
 
     private void equaliseWorldNStage() {
@@ -151,17 +164,7 @@ public class ChartSolve extends Application {
     }
 
     private boolean hasSingleSolution(BigDecimal[][] m) {
-        if(m[0][0].doubleValue()==0 & m[0][1].doubleValue() == 0 || m[1][0].doubleValue()==0 & m[1][1] .doubleValue() == 0 )
-            return false;
-        if(m[0][0].doubleValue() != 0 & m[0][1].doubleValue() != 0) {
-            return m[1][0].divide(m[0][0], 2, RoundingMode.HALF_EVEN).doubleValue()
-                    != m[1][1].divide(m[0][1],2,RoundingMode.HALF_EVEN).doubleValue();
-        }
-        if(m[1][0].doubleValue() != 0 & m[1][1].doubleValue() != 0) {
-            return m[0][0].divide(m[1][0], 2, RoundingMode.HALF_EVEN).doubleValue()
-                    != m[0][1].divide(m[1][1],2,RoundingMode.HALF_EVEN).doubleValue();
-        }
-        return true;
+        return SLAEMethod.getMatrixConsistence(Model.cloneMatrix(slae)) == 0;
     }
 
     private boolean fitsIntoCurrSystem(Line l) {
@@ -197,32 +200,44 @@ public class ChartSolve extends Application {
     }
 
     private void designateWorldDot(Coordinates worldDot) {
-        System.out.println("CrossDotDesignating");
         Coordinates horStart = worldToScreen(new Coordinates(worldDot.x,0));
         Coordinates horEnd = worldToScreen(new Coordinates(worldDot.x, worldDot.y));
         Coordinates vertStart = worldToScreen(new Coordinates(0, worldDot.y));
         Coordinates vertEnd = worldToScreen(new Coordinates(worldDot.x, worldDot.y));
         Line horizontal = new Line(horStart.x, horStart.y, horEnd.x, horEnd.y);
         Line vertical = new Line(vertStart.x, vertStart.y, vertEnd.x, vertEnd.y);
-
         Coordinates xStringLoc = worldToScreen(new Coordinates(worldDot.x, 0));
         Coordinates yStringLoc = worldToScreen(new Coordinates(0, worldDot.y));
-
         Text xString = new Text(Double.toString(round(worldDot.x,2)));
+        double stringWidth = xString.getLayoutBounds().getWidth();
+        double stringHeight = xString.getLayoutBounds().getHeight();
         xString.setStroke(Color.RED);
-        xString.setX(xStringLoc.x - xString.getLayoutBounds().getWidth()/2);
+        xString.setX(xStringLoc.x - stringWidth/2);
+
         if(worldDot.y > 0)
-            xString.setY(xStringLoc.y + xString.getLayoutBounds().getHeight());
+            xString.setY(xStringLoc.y + stringHeight);
         else
             xString.setY(xStringLoc.y - 5);
 
+        if(worldDot.x > 0 && worldLengthToScreen(worldMaxX - worldDot.x) <= stringWidth)
+            xString.setX(xStringLoc.x - stringWidth - 3);
+        else if(worldDot.x < 0 && worldLengthToScreen(worldMinX - worldDot.x) <= stringWidth)
+            xString.setX(xStringLoc.x + 3);
+
         Text yString = new Text(Double.toString(round(worldDot.y,2)));
         yString.setStroke(Color.RED);
+        stringWidth = yString.getLayoutBounds().getWidth();
+        stringHeight = yString.getLayoutBounds().getHeight();
         if (worldDot.x > 0)
-            yString.setX(yStringLoc.x - yString.getLayoutBounds().getWidth() - 5);
+            yString.setX(yStringLoc.x - stringWidth - 5);
         else
             yString.setX(yStringLoc.x + 3);
-        yString.setY(yStringLoc.y + yString.getLayoutBounds().getHeight()/3);
+
+        yString.setY(yStringLoc.y + stringHeight /3);
+        if(worldDot.y > 0 && worldLengthToScreen(worldMaxY - worldDot.y) <= stringHeight)
+            yString.setY(yStringLoc.y + stringHeight + 3);
+        else if(worldDot.y < 0 && worldLengthToScreen(worldMinY - worldDot.y) <= stringHeight)
+            yString.setY(yStringLoc.y - 3);
 
         horizontal.setStroke(Color.RED);
         vertical.setStroke(Color.RED);
@@ -239,6 +254,7 @@ public class ChartSolve extends Application {
     }
 
     private BigDecimal[][] toBigDecMatrix(double[][] m) {
+        Model.showMatrix(m);
         BigDecimal[][] result = new BigDecimal[m.length][m[0].length];
         for (int i = 0; i < m.length; i++)
             for (int j = 0; j < m[0].length; j++)
@@ -250,19 +266,13 @@ public class ChartSolve extends Application {
         root = new StackPane();
         scene = new Scene(root, width, height);
         worldPane = new Pane();
-//        infoPane = new AnchorPane();
-//        infoPane.setMaxHeight(100);
-//        infoPane.setMaxWidth(100);
-//        infoPane.set
-//        infoPane.setBackground(new Background(new BackgroundFill(Color.WHITE, CornerRadii.EMPTY, Insets.EMPTY)));
         root.getChildren().add(worldPane);
-//        root.getChildren().add(infoPane);
         stage.setTitle(title);
         stage.setScene(scene);
         stage.show();
     }
 
-    private void setOnActions() {
+    /*private void setOnActions() {
         AtomicReference<Coordinates> startPan = new AtomicReference<>();
         scene.setOnMousePressed(me -> {
             Coordinates screen = new Coordinates(me.getX(), me.getY());
@@ -337,7 +347,7 @@ public class ChartSolve extends Application {
             update();
 
         });
-    }
+    }*/
 
     private void update() {
         updateWorld();
@@ -363,16 +373,26 @@ public class ChartSolve extends Application {
         Line l = null;
         Text xAxisName = new Text();
         Text yAxisName = new Text();
+        Text dashNum;
         xAxisName.setFont(Font.font(18));
         yAxisName.setFont(Font.font(18));
-        Coordinates screenS, screenE, axisNameScreenLoc;
+        Coordinates screenS, screenE, axisNameScreenLoc, dashNumLoc;
+        equaliseWorldNStage();
         for (int x =(int) worldMinX; x <= worldMaxX; x++) {
             if (x != 0 & x%gap == 0) {
                 screenS = worldToScreen(x, -dashSize);
                 screenE = worldToScreen(x, dashSize);
                 l = new Line(screenS.x, screenS.y, screenE.x, screenE.y);
                 l.setStrokeWidth(smallStrWidth);
-                worldPane.getChildren().add(l);
+                dashNum = new Text(Integer.toString(x));
+                dashNum.setStrokeWidth(1);
+                dashNum.setFont(new Font(10));
+                dashNum.setStroke(Color.GREY);
+                dashNumLoc = worldToScreen(x - screenLengthToWorld(dashNum.getLayoutBounds().getWidth()/2),
+                        -dashSize-screenLengthToWorld(dashNum.getLayoutBounds().getHeight()));
+                dashNum.setX(dashNumLoc.x);
+                dashNum.setY(dashNumLoc.y);
+                worldPane.getChildren().addAll(l, dashNum);
             } else if (x == 0){
                 screenS = worldToScreen(x, worldMinY);
                 screenE = worldToScreen(x, worldMaxY);
@@ -392,7 +412,15 @@ public class ChartSolve extends Application {
                 screenE = worldToScreen(dashSize, y);
                 l = new Line(screenS.x, screenS.y, screenE.x, screenE.y);
                 l.setStrokeWidth(smallStrWidth);
-                worldPane.getChildren().add(l);
+                dashNum = new Text(Integer.toString(y));
+                dashNum.setStrokeWidth(1);
+                dashNum.setFont(new Font(10));
+                dashNum.setStroke(Color.GREY);
+                dashNumLoc = worldToScreen(-dashSize - screenLengthToWorld(dashNum.getLayoutBounds().getWidth()) - 0.3,
+                        y - screenLengthToWorld(dashNum.getLayoutBounds().getHeight()/2));
+                dashNum.setX(dashNumLoc.x);
+                dashNum.setY(dashNumLoc.y);
+                worldPane.getChildren().addAll(l, dashNum);
             } else if (y == 0){
                 screenS = worldToScreen(worldMinX, y);
                 screenE = worldToScreen(worldMaxX, y);
@@ -411,31 +439,80 @@ public class ChartSolve extends Application {
 
     }
 
+    private double screenLengthToWorld(double length) {
+        return length / scaleX;
+    }
+
+    private double worldLengthToScreen(double length) {
+        return length * scaleX;
+    }
+
     private Coordinates worldToScreen(double wx, double wy) {
         return new Coordinates(
-                (wx - offsetX) * scaleX,
-                (-wy - offsetY) * scaleY
+                worldXToScreen(wx),
+                worldYToScreen(wy)
         );
+    }
+
+    /*private double worldYToScreen(double wy) {
+        return (-wy - offsetY) * scaleY;
+    }*/
+    private double worldYToScreen(double wy) {
+        BigDecimal wyBD = BigDecimal.valueOf(wy);
+        BigDecimal scaleYBD = BigDecimal.valueOf(scaleY);
+        BigDecimal offsetYBD = BigDecimal.valueOf(offsetY);
+        return wyBD.negate().subtract(offsetYBD).multiply(scaleYBD).doubleValue();
+    }
+
+    /*private double worldXToScreen(double wx) {
+        return (wx - offsetX) * scaleX;
+    }*/
+    private double worldXToScreen(double wx) {
+        BigDecimal wxBD = BigDecimal.valueOf(wx);
+        BigDecimal scaleXBD = BigDecimal.valueOf(scaleX);
+        BigDecimal offsetXBD = BigDecimal.valueOf(offsetX);
+        return wxBD.subtract(offsetXBD).multiply(scaleXBD).doubleValue();
     }
 
     private Coordinates worldToScreen(Coordinates world) {
         return new Coordinates(
-                (world.x - offsetX) * scaleX,
-                (-world.y - offsetY) * scaleY
+                worldXToScreen(world.x),
+                worldYToScreen(world.y)
         );
+    }
+
+    /*private double screenXToWorld(double sx) {
+
+        return sx/scaleX + offsetX;
+    }*/
+    private double screenXToWorld(double sx) {
+        BigDecimal sxBD = BigDecimal.valueOf(sx);
+        BigDecimal scaleXBD = BigDecimal.valueOf(scaleX);
+        BigDecimal offsetXBD = BigDecimal.valueOf(offsetX);
+        return sxBD.divide(scaleXBD, RoundingMode.HALF_EVEN).add(offsetXBD).doubleValue();
+    }
+
+    /*private double screenYToWorld(double sy) {
+        return -(sy/scaleY + offsetY);
+    }*/
+    private double screenYToWorld(double sy) {
+        BigDecimal syBD = BigDecimal.valueOf(sy);
+        BigDecimal scaleYBD = BigDecimal.valueOf(scaleY);
+        BigDecimal offsetYBD = BigDecimal.valueOf(offsetY);
+        return syBD.divide(scaleYBD, RoundingMode.HALF_EVEN).add(offsetYBD).negate().doubleValue();
     }
 
     private Coordinates screenToWorld(double sx, double sy) {
         return new Coordinates(
-                sx/scaleX + offsetX,
-                -(sy/scaleY + offsetY)
+                screenXToWorld(sx),
+                screenYToWorld(sy)
         );
     }
 
     private Coordinates screenToWorld(Coordinates screen) {
         return new Coordinates(
-                screen.x/scaleX + offsetX,
-                -(screen.y/scaleY + offsetY)
+                screenXToWorld(screen.x),
+                screenYToWorld(screen.y)
         );
     }
 
@@ -470,8 +547,6 @@ public class ChartSolve extends Application {
             worldEnd.x = worldMaxX;
             worldEnd.y = f.count(wMaxXBD).doubleValue();
         } else if(xCoef.doubleValue() != 0){
-            /*ERROR HERE LOOOK!!!!!!
-                WTF??? YOU USE HERE / yCoef with knowing its eq 0!!!!!*/
             double x = freeCoef.divide(xCoef, 2, RoundingMode.HALF_UP).doubleValue();
             worldStart.x = x;
             worldStart.y = worldMinY;
@@ -527,9 +602,5 @@ public class ChartSolve extends Application {
             return x >= y ? x : y;
         }
     }
-
-    
-
-
 
 }
