@@ -24,16 +24,17 @@ public class Rotation extends SLAEMethod{
         }
 
         BigDecimal sum;
-        BigDecimal[] result = new BigDecimal[matrix[0].length-1];
-        for (int i = varNum -1; i >= 0; i--) {
+        BigDecimal[] result = new BigDecimal[varNum];
+        for (int i = varNum-1; i >= 0; i--) {
             sum = BigDecimal.ZERO;
             for (int j = i+1; j < varNum; j++) {
                 sum = sum.add(matrix[i][j].multiply(result[j]));
                 multCount++;
                 sumCount++;
             }
-            result[i] = matrix[i][eqtNum -1].subtract(sum).divide(matrix[i][i], RoundingMode.HALF_EVEN);
+            result[i] = matrix[i][varNum].subtract(sum).divide(matrix[i][i], RoundingMode.HALF_EVEN);
             subtrCount++;
+            
             divCount++;
         }
 

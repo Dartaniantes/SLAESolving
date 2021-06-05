@@ -1,18 +1,18 @@
-Method: Jordan-Gauss
+Method: Gauss
 Input slae :
 5.0 x1  +2.0 y1  = 10.0
 9.0 x2  +2.0 y2  = 2.0
 
 Result slae : 
-1.0 x1  +0.0 y1  = -2.0
-0.0 x2  +1.0 y2  = 10.0
-1,00 x1  + 0,00 x2   =   -2,00 
-0,00 x1  + 1,00 x2   =   10,00 
+5.0 x1  +2.0 y1  = 10.0
+0.0 x2  -1.6 y2  = -16.0
+5,00 x1  + 2,00 x2   =   10,00 
+0,00 x1  + -1,60 x2   =   -16,00 
 
 Result :
 x =  -2,000 
 y =  10,000 
-Additions: 0
-Subtractions: 3
-Multiplies: 6
-Divisions: 6
+Additions: 1
+Subtractions: 5
+Multiplies: 4
+Divisions: 3
