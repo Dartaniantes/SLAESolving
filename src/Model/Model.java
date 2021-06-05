@@ -2,10 +2,15 @@ package Model;
 
 import Model.exception.InconsistentMatrixException;
 import Model.exception.InfiniteSolutionsAmountException;
+import javafx.application.Application;
+import javafx.scene.Group;
+import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.stage.FileChooser;
+import javafx.stage.Stage;
 
 import java.io.*;
 import java.math.BigDecimal;
-import java.util.Arrays;
 
 public class Model {
     BufferedReader br;
@@ -25,13 +30,9 @@ public class Model {
 
     private int sumCount = 0, substrCount = 0, multCount = 0, divCount = 0;
 
-    public static void main(String[] args) {
-        BigDecimal num = BigDecimal.valueOf(3);
-        System.out.println(num.add(num));
-        System.out.println(num);
-    }
 
-    public boolean checkFile(String input) {
+
+    public boolean fileIsValid(File input) {
         String[] temp;
         try {
             br = new BufferedReader(new FileReader(input));
@@ -313,7 +314,7 @@ public class Model {
         return originSlae[0].length - 1;
     }
 
-    public int getEqationsNum() {
+    public int getEquationsNum() {
         return originSlae.length;
     }
 
@@ -401,6 +402,8 @@ public class Model {
     public int getDivCount() {
         return divCount;
     }
+
+
 }
 
 

@@ -19,7 +19,7 @@ public abstract class SLAEMethod {
 
     public void setMatrix(double[][] matrix){
         this.matrix = Model.toBigDecimalMatrix(matrix);
-        varNum = matrix[0].length;
+        varNum = matrix[0].length-1;
         eqtNum = matrix.length;
     }
 

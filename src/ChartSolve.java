@@ -2,9 +2,13 @@ import Model.SLAEMethod;
 import Model.Model;
 import javafx.application.Application;
 import javafx.geometry.Point2D;
+import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
@@ -14,8 +18,11 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.Shape;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
+import javafx.stage.DirectoryChooser;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
+import java.io.File;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.concurrent.atomic.AtomicReference;
@@ -53,14 +60,6 @@ public class ChartSolve extends Application {
         launch(args);
     }
 
-    public ChartSolve(double[][] matrix) {
-        this.slae = matrix;
-    }
-
-    public ChartSolve() {
-
-    }
-
     @Override
     public void start(Stage stage) {
         this.stage = stage;
@@ -70,8 +69,15 @@ public class ChartSolve extends Application {
 
         offsetX = -width/2/scaleX;
         offsetY = -height/2/scaleY;
-//        setOnActions();
         update();
+    }
+
+    public ChartSolve(double[][] matrix) {
+        this.slae = matrix;
+    }
+
+    public ChartSolve() {
+
     }
 
 
@@ -80,7 +86,7 @@ public class ChartSolve extends Application {
 
         l1 = drawFuncGraph(matrix[0][0], matrix[0][1], matrix[0][2]);
         l2 = drawFuncGraph(matrix[1][0], matrix[1][1], matrix[1][2]);
-        if (hasSingleSolution(matrix)) {
+        if (hasSingleSolution(Model.toDoubleMatrix(matrix))) {
             intersection = Line.intersect(l1, l2);
             double maxCoordinate = getBiggestWorldCoordinate(l1, l2);
 
@@ -125,7 +131,7 @@ public class ChartSolve extends Application {
 
 
         updateWith(l1,l2);
-        if (hasSingleSolution(matrix))
+        if (hasSingleSolution(Model.toDoubleMatrix(matrix)))
             designateWorldDot(worldResult);
     }
 
@@ -163,9 +169,11 @@ public class ChartSolve extends Application {
         worldMinY -= addSize;
     }
 
-    private boolean hasSingleSolution(BigDecimal[][] m) {
-        return SLAEMethod.getMatrixConsistence(Model.cloneMatrix(slae)) == 0;
+    private boolean hasSingleSolution(double[][] m) {
+        return SLAEMethod.getMatrixConsistence(Model.cloneMatrix(m)) == 0;
     }
+
+
 
     private boolean fitsIntoCurrSystem(Line l) {
         return l.getStartX() < worldMaxX &&
@@ -573,15 +581,6 @@ public class ChartSolve extends Application {
     interface MathFunctionBD {
         BigDecimal count(BigDecimal num);
     }
-
-    private void sleep(long millis){
-        try {
-            Thread.sleep(millis);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-    }
-
 
     private class Coordinates{
         private double x;

@@ -5,14 +5,13 @@ import Model.exception.InvalidInputException;
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
-import javafx.scene.chart.LineChart;
-import javafx.scene.chart.NumberAxis;
-import javafx.scene.chart.XYChart;
 import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.*;
+import javafx.stage.DirectoryChooser;
+import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
@@ -30,11 +29,13 @@ public class View extends Application {
     Button solveB, genGenDoubleB, okB, genGenIntB, okRB, readB;
     TextField inputFileF, manCoefsF[][], manFreeValsF[], outputFileF;
     Label inputL, methodL, manVarNumL, readWarnL, genVarNumL, outFileL, enterPathL, generateMatrixL, generatedMatrixL,
-            enterValidOutputPathL, incorrectInputL,resultL, resultWrittenL, inputFieldEmptyL, fileDoesntExistL,
+            chooseFileFirstlyL, incorrectInputL,resultL, resultWrittenL, inputFieldEmptyL, fileDoesntExistL,
             readMatrixL, inconsistentMatrixL, infiniteSolutionsL, invalidInputL, inputMatrixL, inputTitleL, resultTitleL, genEqtNumL,manEqtNumL;
     String outputPath = "${ResultsPath}";
     ChoiceBox<String> inputTypeList, methodList;
     ChoiceBox<Integer> manVarNumCB, genVarNumCB, genEqtNumCB, manEqtNumCB;
+    FileChooser fileChoose;
+    DirectoryChooser dirChoose;
 
     public static void main(String[] args) {
         launch(args);
@@ -82,53 +83,35 @@ public class View extends Application {
         solveB.setOnAction(actionEvent -> {
             try {
                 model.nullifyResultingStrings();
-                if (!outputFileF.getText().trim().isEmpty())
-                    if (new File(outputFileF.getText()).isFile())
-                        outputPath = outputFileF.getText();
-                    else {
-                        alertPane.getChildren().remove(0);
-                        alertPane.getChildren().add(0, enterValidOutputPathL);
-                        alertStage.show();
-                    }
-                if (inputTypeList.getValue() == null) {
+                //
+                /*if (outputFileF.getText().isEmpty())
+                    alertPane.getChildren().remove(0);
+                    alertPane.getChildren().add(0, chooseFileFirstlyL);
+                    alertStage.show();*/
+
+
+                if (inputTypeList.getValue() == "Generate randomly" && !model.matrixExists()) {
+                    alertPane.getChildren().remove(0);
+                    alertPane.getChildren().add(0, generateMatrixL);
                     alertStage.show();
-                } else {
-                    if (inputTypeList.getValue() == "Read from file") {
-                        if (!inputFileF.getText().trim().isEmpty() & new File(inputFileF.getText()).exists()) {
-                            if (model.getVarNum() == 2 && model.getEqationsNum() == 2)
-                                getChartSolving(model.getOriginSlae());
-                            model.solveMatrixByMethod(methodList.getValue());
-                        } else {
-                            alertPane.getChildren().remove(0);
-                            alertPane.getChildren().add(0, enterPathL);
-                            alertStage.show();
-                        }
-                    } else if (inputTypeList.getValue() == "Generate randomly") {
-                        if (model.matrixExists()) {
-                            if (model.getVarNum() == 2 && model.getEqationsNum() == 2)
-                                getChartSolving(model.getOriginSlae());
-                            model.solveMatrixByMethod(methodList.getValue());
-                        } else {
-                            alertPane.getChildren().remove(0);
-                            alertPane.getChildren().add(0, generateMatrixL);
-                            alertStage.show();
-                        }
-                    } else if (inputTypeList.getValue() == "Enter manually") {
-                        makeMatrixManually();
-                        if (model.getVarNum() == 2 && model.getEqationsNum() == 2)
-                            getChartSolving(model.getOriginSlae());
-                        model.solveMatrixByMethod(methodList.getValue());
-                    }
-                    if (model.resultExists()) {
-                        model.writeResultToFile(outputPath);
-                        resultWrittenL.setText("Result was written to file : " + outputPath);
-                        inputMatrixL.setText("Method : "+ model.getMethodName()+"\n" + model.getOriginSlaeString());
-                        resultPane.getChildren().remove(2);
-                        resultPane.getChildren().add(2, inputMatrixL);
-                        resultL.setText(model.getResultString());
-                        resultStage.show();
-                    }
+                } else if (inputTypeList.getValue() == "Enter manually") {
+                    makeMatrixManually();
                 }
+
+                // add zero strings check here
+                if (model.getVarNum() == 2 && model.getEquationsNum() == 2)
+                    getChartSolving(model.getOriginSlae());
+                model.solveMatrixByMethod(methodList.getValue());
+                if (model.resultExists()) {
+                    model.writeResultToFile(outputPath);
+                    resultWrittenL.setText("Result was written to file : " + outputPath);
+                    inputMatrixL.setText("Method : "+ model.getMethodName()+"\n" + model.getOriginSlaeString());
+                    resultPane.getChildren().remove(2);
+                    resultPane.getChildren().add(2, inputMatrixL);
+                    resultL.setText(model.getResultString());
+                    resultStage.show();
+                }
+
             } catch (InconsistentMatrixException e) {
                 inconsistentMatrixL.setText(e.getMessage());
                 alertPane.getChildren().remove(0);
@@ -188,7 +171,7 @@ public class View extends Application {
         alertStage.setWidth(240 );
         enterPathL = new Label("Enter valid input file path!");
         enterPathL.setPadding(new Insets(10, 10, 10, 10));
-        enterValidOutputPathL = new Label("Enter valid output file path!");
+        chooseFileFirstlyL = new Label("Enter valid output file path!");
         incorrectInputL = new Label("Input file contains incorrect symbols");
         inputFieldEmptyL = new Label("Input file field is empty");
         fileDoesntExistL = new Label("Specified file doesn't exist");
@@ -254,30 +237,23 @@ public class View extends Application {
         readWarnL = new Label("WARNINGS :\n   - coefficients in file have to be separated by spaces\n" +
                 "   - each coefficient including '0' have to be specified");
 
-        readB = new Button("Read");
+        fileChoose = new FileChooser();
+
+        readB = new Button("Choose file");
         readB.setOnAction(ae -> {
-            if (!inputFileF.getText().trim().isEmpty()) {
-                if (new File(inputFileF.getText()).exists()){
-                    if(model.checkFile(inputFileF.getText())){
-                        readPane.getChildren().removeAll(readMatrixL);
-                        readMatrixL = getLabeledMatrix(model.getOriginSlae());
-                        readPane.getChildren().add(readMatrixL);
-                    }
-                    else {
-                        alertPane.getChildren().remove(0);
-                        alertPane.getChildren().add(0, incorrectInputL);
-                        alertStage.show();
-                    }
-                } else {
-                    alertPane.getChildren().remove(0);
-                    alertPane.getChildren().add(0, fileDoesntExistL);
-                    alertStage.show();
-                }
+            File inputF = fileChoose.showOpenDialog(null);
+
+            if(model.fileIsValid(inputF)){
+                readPane.getChildren().removeAll(readMatrixL);
+                readMatrixL = getLabeledMatrix(model.getOriginSlae());
+                readPane.getChildren().add(readMatrixL);
             } else {
                 alertPane.getChildren().remove(0);
-                alertPane.getChildren().add(0, inputFieldEmptyL);
+                alertPane.getChildren().add(0, incorrectInputL);
                 alertStage.show();
             }
+
+
         });
         readWarnL.setPadding(new Insets(10));
         inputFileF = new TextField();

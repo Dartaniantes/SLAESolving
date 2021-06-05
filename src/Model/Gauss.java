@@ -25,7 +25,7 @@ public class Gauss extends SLAEMethod{
             }
             //matrix[i][width-1]
             //vector[i]
-            x[i] = matrix[i][width-1].subtract(sum).divide(matrix[i][i]);
+            x[i] = matrix[i][width-1].subtract(sum).divide(matrix[i][i], RoundingMode.HALF_EVEN);
             subtrCount++;
             divCount++;
         }
@@ -50,7 +50,7 @@ public class Gauss extends SLAEMethod{
             matrix[max] = temp;
 
             for (int k = i+1; k < length; k++) {
-                BigDecimal alfa = matrix[k][i].divide(matrix[i][i]);
+                BigDecimal alfa = matrix[k][i].divide(matrix[i][i], RoundingMode.HALF_EVEN);
                 divCount++;
                 //matrix[k][freeElement]  matrix[i][freeElement]
                 //vector[k]  vector[i]
