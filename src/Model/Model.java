@@ -2,15 +2,13 @@ package Model;
 
 import Model.exception.InconsistentMatrixException;
 import Model.exception.InfiniteSolutionsAmountException;
-import javafx.application.Application;
-import javafx.scene.Group;
-import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.stage.FileChooser;
-import javafx.stage.Stage;
 
 import java.io.*;
 import java.math.BigDecimal;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class Model {
     BufferedReader br;
@@ -26,38 +24,44 @@ public class Model {
     private double[][] resultSlae;
     private double[] result;
     private String methodName;
-    private String originSlaeString, resultSlaeString, resultString, arithmeticsString;
+    private String originSlaeString, resultSlaeString, resultString, arithmeticsString, totalResultString;
 
     private int sumCount = 0, substrCount = 0, multCount = 0, divCount = 0;
 
 
 
-    public boolean fileIsValid(File input) {
+    /*public boolean fileIsValid(File input) {
         String[] temp;
         try {
+            int width, length;
             br = new BufferedReader(new FileReader(input));
-            temp = br.readLine().split(" ");
-            int width = temp.length;
-            int length = temp.length - 1;
+            do
+                temp = br.readLine().split(" ");
+            while (br.ready() & temp[0].isEmpty());
+
+            if(temp[0].isEmpty())
+                return false;
+
+            for (String s : temp)
+                if(!s.matches("-?\\d+([.,]\\d+)?"))
+                    return false;
+
+            width = temp.length;
+            length = temp.length - 1;
             originSlae = new double[length][width];
-            for (int i = 0; i < length; i++) {
-                for (int k = 0; k < temp[i].length(); k++) {
-                    if ((int) temp[i]
-                            .charAt(k) < 48 || (int) temp[i].charAt(k) > 57)
-                        return false;
-                }
-            }
             for (int i = 0; i < width; i++) {
                 originSlae[0][i] = Double.parseDouble(temp[i]);
             }
             while (br.ready()) {
                 for (int i = 1; i < length; i++) {
                     temp = br.readLine().split(" ");
+                    width = temp.length;
                     for (int j = 0; j < width; j++) {
-                        for (int k = 0; k < temp[j].length(); k++)
-                            if (48 > (int) temp[j].charAt(k) || 57 < (int) temp[j].charAt(k))
+                        if(!temp[j].isEmpty() & !temp[j].isBlank()){
+                            if(!temp[j].matches("-?\\d+([.,]\\d+)?"))
                                 return false;
-                        originSlae[i][j] = Double.parseDouble(temp[j]);
+                            originSlae[i][j] = Double.parseDouble(temp[j]);
+                        }
                     }
                 }
             }
@@ -67,19 +71,72 @@ public class Model {
             e.printStackTrace();
         }
         return true;
+    }*/
+
+
+    public boolean fileIsValid(File input) {
+        List<String[]> tempList = new LinkedList<>();
+        try {
+            br = new BufferedReader(new FileReader(input));
+            while (br.ready())
+                tempList.add(br.readLine().split(" +"));
+            br.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        int maxWidth = 0;
+        for (int i = 0; i < tempList.size(); i++)
+            if(tempList.get(i)[0].isEmpty() | tempList.get(i)[0].isBlank())
+                tempList.remove(i);
+            else {
+                for (String s:tempList.get(i)) {
+                    if(!s.matches("-?\\d+([.,]\\d+)?"))
+                        return false;
+                    else if (s.contains(","))
+                        s.replace(',', '.');
+                }
+                if (tempList.get(i).length > maxWidth)
+                    maxWidth = tempList.get(i).length;
+
+            }
+        int eqtNum = 2, eqtWidth = 2;
+        if (tempList.size() > eqtNum)
+            eqtNum = tempList.size();
+        if (maxWidth > eqtWidth)
+            eqtWidth = maxWidth;
+
+        originSlae = new double[eqtNum][eqtWidth];
+        for (int i = 0; i < eqtNum; i++) {
+            originSlae[i] = getEquationCoefs(tempList.get(i), eqtWidth);
+        }
+        return true;
+    }
+
+    private double[] getEquationCoefs(String[] s, int eqtWidth) {
+        double[] coefs = new double[eqtWidth];
+        for (int i = 0; i < eqtWidth; i++)
+            if (i < s.length && !s[i].isEmpty() & !s[i].isBlank())
+                coefs[i] = Double.parseDouble(s[i]);
+            else
+                coefs[i] = 0;
+        return coefs;
     }
 
     public void writeResultToFile(String outPath) {
+        File outF = new File(outPath);
+        if (outF.isDirectory()) {
+            outF = new File(outPath + "\\" + (outF.listFiles().length+1) + ".txt");
+            try {
+                outF.createNewFile();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
         try {
-            bw = new BufferedWriter(new FileWriter(outPath));
-            bw.write("Method: " + methodName + "\n");
-            bw.write("Input slae :\n");
-            writeOriginSlae();
-            bw.write("\nResult slae : \n");
-            writeResultSlae();
-            bw.write("\nResult :\n");
-            writeResult();
-            writeArithmetics();
+            bw = new BufferedWriter(new FileWriter(outF));
+            bw.write(totalResultString);
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
@@ -92,24 +149,30 @@ public class Model {
         }
     }
 
-    private void writeArithmetics() throws IOException {
-        bw.write((arithmeticsString = "Additions: " + getSumCount() + "\n" +
-                "Subtractions: " + getSubstrCount() + "\n" +
-                "Multiplies: " + getMultCount() + "\n" +
-                "Divisions: " + getDivCount() + "\n"));
-
+    public String makeTotalResultString() {
+        return totalResultString =
+                "Method: "+ methodName + "\n" +
+                        "Input slae :\n" +
+                        makeOriginSlaeString() +
+                        "\nResult slae : \n" +
+                        makeResultSlaeString() +
+                        "\nResult :\n" +
+                        makeResultString()+
+                        makeArithmeticsString();
     }
 
-    ;
+    private String makeArithmeticsString() {
+        return arithmeticsString = "Additions: " + getSumCount() + "\n" +
+                "Subtractions: " + getSubstrCount() + "\n" +
+                "Multiplies: " + getMultCount() + "\n" +
+                "Divisions: " + getDivCount() + "\n";
+    }
 
-    private void writeOriginSlae() throws IOException {
-        String temp;
+    private String makeOriginSlaeString() {
         if (originSlae[0].length == 3) {
             for (int i = 0; i < originSlae.length; i++) {
-                temp = originSlae[i][0] + " x" + (i + 1) + "  " + (originSlae[i][1] >= 0 ? "+" + originSlae[i][1] : originSlae[i][1])
+                originSlaeString += originSlae[i][0] + " x" + (i + 1) + "  " + (originSlae[i][1] >= 0 ? "+" + originSlae[i][1] : originSlae[i][1])
                         + " y" + (i + 1) + "  = " + originSlae[i][2] + "\n";
-                bw.write(temp);
-                originSlaeString += temp;
             }
         } else {
             for (int i = 0; i < originSlae.length; i++)
@@ -117,71 +180,49 @@ public class Model {
                     int index = j + 1;
                     if (j < originSlae[0].length - 1) {
                         if (j < originSlae[0].length - 2) {
-                            temp = String.format("%.2f x" + index + (originSlae[i][j + 1] >= 0 ? "  +" : "  "), originSlae[i][j]);
-                            bw.write(String.format("%.2f x" + index + (originSlae[i][j + 1] >= 0 ? "  +" : "  "), originSlae[i][j]));
-                            originSlaeString += temp;
+                            originSlaeString += String.format("%.2f x" + index + (originSlae[i][j + 1] >= 0 ? "  +" : "  "), originSlae[i][j]);
                         } else {
-                            temp = String.format(" %.2f x" + index + " ", originSlae[i][j]);
-                            bw.write(String.format(" %.2f x" + index + " ", originSlae[i][j]));
-                            originSlaeString += temp;
+                            originSlaeString += String.format(" %.2f x" + index + " ", originSlae[i][j]);
                         }
                     } else {
-                        temp = String.format("   =   %.2f " + "%n", originSlae[i][j]);
-                        bw.write(String.format("   =   %.2f " + "%n", originSlae[i][j]));
-                        originSlaeString += temp;
+                        originSlaeString += String.format("   =   %.2f " + "%n", originSlae[i][j]);
                     }
                 }
         }
+        return originSlaeString;
     }
 
-    private void writeResultSlae() throws IOException {
-        String temp;
-        if (originSlae[0].length == 3) {
-            for (int i = 0; i < originSlae.length; i++) {
-                temp = resultSlae[i][0] + " x" + (i + 1) + "  " + (resultSlae[i][1] >= 0 ? "+" + resultSlae[i][1] : resultSlae[i][1])
-                        + " y" + (i + 1) + "  = " + resultSlae[i][2] + "\n";
-                bw.write(temp);
-                resultSlaeString +=temp;
-            }
-        }
+    private String makeResultSlaeString() {
+        /*if (originSlae[0].length == 3)
+            for (int i = 0; i < originSlae.length; i++)
+                resultSlaeString += resultSlae[i][0] + " x" + (i + 1) + "  " + (resultSlae[i][1] >= 0 ? "+" + resultSlae[i][1] : resultSlae[i][1])
+                        + " y" + (i + 1) + "  = " + resultSlae[i][2] + "\n";*/
+
         for (int i = 0; i < resultSlae.length; i++)
             for (int j = 0; j < resultSlae[0].length; j++) {
                 int index = j + 1;
-                if (j < resultSlae[0].length - 1) {
-                    if (j < resultSlae[0].length - 2) {
-                        temp = String.format("%.2f x" + index + (originSlae[i][j + 1] >= 0 ? "  +" : "  "), resultSlae[i][j]);
-                        bw.write(temp);
-                        resultSlaeString += temp;
-                    } else {
-                        temp = String.format(" %.2f x" + index, resultSlae[i][j]);
-                        bw.write(temp);
-                        resultSlaeString += temp;
-                    }
-                } else {
-                    temp = String.format("   =   %.2f " + "%n", resultSlae[i][j]);
-                    bw.write(temp);
-                    resultSlaeString += temp;
-                }
+                if (j < resultSlae[0].length - 1)
+                    if (j < resultSlae[0].length - 2)
+                        resultSlaeString += String.format("%.2f x" + index + (originSlae[i][j + 1] >= 0 ? "  +" : "  "), resultSlae[i][j]);
+                    else
+                        resultSlaeString += String.format(" %.2f x" + index, resultSlae[i][j]);
+                else
+                    resultSlaeString += String.format("   =   %.2f " + "%n", resultSlae[i][j]);
+
             }
+        return resultSlaeString;
     }
 
-    private void writeResult() throws IOException {
-        String temp;
-        if (result.length == 2) {
-            temp = String.format("x" + " = " + " %.3f \n", result[0]);
-            bw.write(temp);
-            resultString += temp;
-            temp = String.format("y" + " = " + " %.3f \n", result[1]);
-            bw.write(String.format("y" + " = " + " %.3f \n", result[1]));
-            resultString += temp;
-        } else {
+    private String makeResultString()  {
+        if (result.length == 2)
+            resultString += String.format("x" + " = " + " %.3f \n", result[0]) + String.format("y" + " = " + " %.3f \n", result[1]);
+        else
             for (int i = 0; i < result.length; i++) {
                 int index = i + 1;
-                temp = String.format("x" + index + " = " + " %.3f \n", result[i]);
-                bw.write(String.format("x" + index + " = " + " %.3f \n", result[i]));
-                resultString += temp;
+                resultString += String.format("x" + index + " = " + " %.3f \n", result[i]);
             }
-        }
+            return resultString;
+
     }
 
 
@@ -198,13 +239,12 @@ public class Model {
         this.originSlae = matrix;
     }
 
-    public double[][] generateIntMatrix(int varNum, int eqtNum) {
+    public void generateIntMatrix(int varNum, int eqtNum) {
         double[][] matrix = new double[eqtNum][varNum + 1];
         for (int i = 0; i < eqtNum; i++)
             for (int j = 0; j < varNum + 1; j++)
                 matrix[i][j] = Math.round(Math.random() * 10);
         this.originSlae = matrix;
-        return matrix;
     }
 
     public void solve(double[][] matrix, String methodName) {

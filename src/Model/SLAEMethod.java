@@ -1,9 +1,7 @@
 package Model;
 
-import java.math.BigDecimal;
-
 public abstract class SLAEMethod {
-    protected BigDecimal[][] matrix;
+    protected double[][] matrix;
     protected int varNum;
     protected int eqtNum;
     protected static int sumCount = 0, subtrCount = 0,multCount = 0, divCount = 0;
@@ -18,13 +16,13 @@ public abstract class SLAEMethod {
     }
 
     public void setMatrix(double[][] matrix){
-        this.matrix = Model.toBigDecimalMatrix(matrix);
+        this.matrix = matrix;
         varNum = matrix[0].length-1;
         eqtNum = matrix.length;
     }
 
     public double[][] getMatrix() {
-        return Model.toDoubleMatrix(matrix);
+        return matrix;
     }
 
     public void showMatrix() {

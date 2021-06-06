@@ -26,16 +26,18 @@ public class View extends Application {
     VBox readPane, manPane, genPane, alertPane, resultPane, genChoosePane;
     AnchorPane buttonPane;
     GridPane manFieldsPane;
-    Button solveB, genGenDoubleB, okB, genGenIntB, okRB, readB;
-    TextField inputFileF, manCoefsF[][], manFreeValsF[], outputFileF;
-    Label inputL, methodL, manVarNumL, readWarnL, genVarNumL, outFileL, enterPathL, generateMatrixL, generatedMatrixL,
-            chooseFileFirstlyL, incorrectInputL,resultL, resultWrittenL, inputFieldEmptyL, fileDoesntExistL,
-            readMatrixL, inconsistentMatrixL, infiniteSolutionsL, invalidInputL, inputMatrixL, inputTitleL, resultTitleL, genEqtNumL,manEqtNumL;
-    String outputPath = "${ResultsPath}";
+    Button solveB, genGenDoubleB, okB, genGenIntB, okRB, chooseInputFileB;
+    TextField inputFileF, manCoefsF[][], manFreeValsF[];
+    Label inputL, methodL, manVarNumL, readWarnL, genVarNumL, enterPathL, generateMatrixL, generatedMatrixL,
+            chooseFileFirstlyL, incorrectInputL, resultWrittenL, inputFieldEmptyL, fileDoesntExistL,
+            readMatrixL, inconsistentMatrixL, infiniteSolutionsL, invalidInputL, inputMatrixL,
+            genEqtNumL,manEqtNumL, inputFileL, outputFileL, inputFilePathL, outputFilePathL,
+            totalResultL;
     ChoiceBox<String> inputTypeList, methodList;
     ChoiceBox<Integer> manVarNumCB, genVarNumCB, genEqtNumCB, manEqtNumCB;
     FileChooser fileChoose;
     DirectoryChooser dirChoose;
+    Button chooseOutputDirB;
 
     public static void main(String[] args) {
         launch(args);
@@ -71,13 +73,22 @@ public class View extends Application {
         methodList = new ChoiceBox<>();
         methodList.getItems().addAll("Gauss", "Jordan-Gauss", "Rotation");
         methodList.setValue("Gauss");
-        outFileL = new Label("Enter output file path :");
-        outputFileF = new TextField();
-        outputFileF.setMinSize(300, 10d);
-        outputFileF.setPromptText("default : " + outputPath);
+        outputFileL = new Label("Output file :");
+        outputFilePathL = new Label("unselected");
         topMenu = new HBox(10);
         topMenu.getChildren().addAll(inputL, inputTypeList, methodL, methodList);
         topMenu.setPadding(new Insets(10, 10, 10, 10));
+        totalResultL = new Label();
+
+        chooseOutputDirB = new Button("Choose directory");
+        chooseOutputDirB.setOnAction(ae ->{
+            dirChoose = new DirectoryChooser();
+            File outputDir = dirChoose.showDialog(null);
+
+            if(outputDir != null)
+                outputFilePathL.setText(outputDir.getAbsolutePath());
+        });
+
 
         solveB = new Button("Solve");
         solveB.setOnAction(actionEvent -> {
@@ -99,16 +110,18 @@ public class View extends Application {
                 }
 
                 // add zero strings check here
+                model.solveMatrixByMethod(methodList.getValue());
                 if (model.getVarNum() == 2 && model.getEquationsNum() == 2)
                     getChartSolving(model.getOriginSlae());
-                model.solveMatrixByMethod(methodList.getValue());
                 if (model.resultExists()) {
-                    model.writeResultToFile(outputPath);
-                    resultWrittenL.setText("Result was written to file : " + outputPath);
-                    inputMatrixL.setText("Method : "+ model.getMethodName()+"\n" + model.getOriginSlaeString());
-                    resultPane.getChildren().remove(2);
-                    resultPane.getChildren().add(2, inputMatrixL);
-                    resultL.setText(model.getResultString());
+                    totalResultL.setText(model.makeTotalResultString());
+                    setResultStage();
+                    if (!outputFilePathL.getText().equals("unselected"))
+                        model.writeResultToFile(outputFilePathL.getText());
+
+                    resultWrittenL.setText("Result was written to file : " + outputFilePathL.getText());
+                    resultPane.getChildren().remove(1);
+                    resultPane.getChildren().add(1, totalResultL);
                     resultStage.show();
                 }
 
@@ -133,7 +146,7 @@ public class View extends Application {
             }
         });
         botMenu = new HBox(10);
-        botMenu.getChildren().addAll(outFileL, outputFileF, solveB);
+        botMenu.getChildren().addAll(outputFileL, outputFilePathL, chooseOutputDirB, solveB);
         buttonPane = new AnchorPane();
         buttonPane.getChildren().addAll(botMenu);
         AnchorPane.setRightAnchor(botMenu, 10d);
@@ -144,24 +157,7 @@ public class View extends Application {
         scene = new Scene(layout);
 
         //result box;
-        resultStage = new Stage();
-        resultStage.setTitle("Alert box");
-        resultStage.setHeight(500);
-        resultStage.setWidth(500);
-        resultWrittenL = new Label();
-        inputTitleL = new Label("Input matrix : ");
-        resultTitleL = new Label("Result : ");
-        inputMatrixL = new Label();
-        resultL = new Label();
-        okRB = new Button("OK");
-        okRB.setOnAction(ae -> {
-            resultStage.close();
-        });
-        resultPane = new VBox();
-        resultPane.getChildren().addAll(resultWrittenL,inputTitleL, inputMatrixL, resultTitleL, resultL, okRB);
-        VBox.setMargin(okRB, new Insets(10, 50, 10, 50));
-        resultScene = new Scene(resultPane);
-        resultStage.setScene(resultScene);
+
 
         // alertBox
         alertStage = new Stage();
@@ -172,7 +168,7 @@ public class View extends Application {
         enterPathL = new Label("Enter valid input file path!");
         enterPathL.setPadding(new Insets(10, 10, 10, 10));
         chooseFileFirstlyL = new Label("Enter valid output file path!");
-        incorrectInputL = new Label("Input file contains incorrect symbols");
+        incorrectInputL = new Label("Input matrix file must contain only decimal or float(using '.') values followed by '-' if needed");
         inputFieldEmptyL = new Label("Input file field is empty");
         fileDoesntExistL = new Label("Specified file doesn't exist");
         generateMatrixL = new Label("Generate matrix firstly!");
@@ -221,6 +217,7 @@ public class View extends Application {
             layout.setCenter(genPane);
         });
         generatedMatrixL = new Label();
+        VBox.setMargin(generatedMatrixL, new Insets(10,10,10,10));
         genGenPane = new HBox();
         genSlaeParamPane = new HBox();
         genChoosePane = new VBox();
@@ -238,39 +235,47 @@ public class View extends Application {
                 "   - each coefficient including '0' have to be specified");
 
         fileChoose = new FileChooser();
-
-        readB = new Button("Choose file");
-        readB.setOnAction(ae -> {
+        chooseInputFileB = new Button("Choose file");
+        chooseInputFileB.setOnAction(ae -> {
             File inputF = fileChoose.showOpenDialog(null);
 
-            if(model.fileIsValid(inputF)){
-                readPane.getChildren().removeAll(readMatrixL);
-                readMatrixL = getLabeledMatrix(model.getOriginSlae());
-                readPane.getChildren().add(readMatrixL);
-            } else {
-                alertPane.getChildren().remove(0);
-                alertPane.getChildren().add(0, incorrectInputL);
-                alertStage.show();
-            }
+            if(inputF != null)
+                if(model.fileIsValid(inputF)){
+                    readPane.getChildren().removeAll(readMatrixL);
+                    readMatrixL = getLabeledMatrix(model.getOriginSlae());
+                    readPane.getChildren().add(readMatrixL);
+                    readReadPane.getChildren().remove(1);
+                    inputFilePathL.setText(inputF.getAbsolutePath());
+                    readReadPane.getChildren().add(1, inputFilePathL);
+                    solveB.setDisable(false);
+
+                } else {
+                    if(!solveB.isDisabled())
+                        solveB.setDisable(true);
+                    alertPane.getChildren().remove(0);
+                    alertPane.getChildren().add(0, incorrectInputL);
+                    alertStage.show();
+                }
 
 
         });
         readWarnL.setPadding(new Insets(10));
         inputFileF = new TextField();
         inputFileF.setPromptText("Enter input SLAE matrix file path : ");
+        inputFileL = new Label("Input file : ");
+        inputFilePathL = new Label("unselected");
         readMatrixL = new Label("");
-        inputFileF.setMinSize(300, 10d);
-        inputFileF.setPadding(new Insets(3,3,3,3));
+
         readReadPane = new HBox();
         readReadPane.setPadding(new Insets(3, 3, 3, 3));
 
-        readReadPane.getChildren().addAll(inputFileF, readB);
-        HBox.setMargin(inputFileF, new Insets(5,5,5,5));
-        HBox.setMargin(readB, new Insets(5,5,5,5));
+        readReadPane.getChildren().addAll(inputFileL,inputFilePathL, chooseInputFileB);
+        HBox.setMargin(inputFileL, new Insets(5,5,5,5));
+        HBox.setMargin(inputFilePathL, new Insets(5,5,5,5));
+        HBox.setMargin(chooseInputFileB, new Insets(5,5,5,5));
         readPane = new VBox();
         readPane.setPadding(new Insets(3, 3, 3, 3));
         readPane.getChildren().addAll(readWarnL, readReadPane,readMatrixL);
-        VBox.setMargin(readMatrixL, new Insets(10,10,10,10));
 
 
         //"manual" choose pane
@@ -352,7 +357,7 @@ public class View extends Application {
         return s.matches("-?\\d+([.,]\\d+)?");
     }
 
-    public String resultToString(double[] result) {
+    /*public String resultToString(double[] result) {
         String res = "";
         int index;
         if (result.length == 2) {
@@ -368,7 +373,7 @@ public class View extends Application {
                     "Multiplies: " + model.getMultCount() + "\n" +
                     "Divisions: " + model.getDivCount() + "\n";
         return res;
-    }
+    }*/
 
 
 
@@ -419,6 +424,23 @@ public class View extends Application {
                         label.setText(label.getText() + String.format("   =   %.2f " + "%n", matrix[i][j]));
             }
         return label;
+    }
+
+    private void setResultStage() {
+        resultStage = new Stage();
+        resultStage.setTitle("Result");
+        resultStage.setHeight(500);
+        resultStage.setWidth(500);
+        resultWrittenL = new Label();
+        okRB = new Button("OK");
+        okRB.setOnAction(ae -> {
+            resultStage.close();
+        });
+        resultPane = new VBox();
+        resultPane.getChildren().addAll(resultWrittenL, totalResultL, okRB);
+        VBox.setMargin(okRB, new Insets(10, 50, 10, 50));
+        resultScene = new Scene(resultPane);
+        resultStage.setScene(resultScene);
     }
 
 

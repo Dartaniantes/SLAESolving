@@ -1,21 +1,20 @@
 package Model;
 
-import java.math.BigDecimal;
 import java.math.RoundingMode;
 
 public class Rotation extends SLAEMethod{
 
     //self-made
     public double[] solve() {
-        BigDecimal c,s, mik;
+        double c,s, mik;
         for (int i = 0 ; i < matrix.length; i++) {
             for (int j = i+1; j < matrix.length; j++) {
                 c = matrix[i][i];
                 s = matrix[j][i];
                 for (int k = 0; k < matrix[0].length; k++) {
                     mik = matrix[i][k];
-                    matrix[i][k] = c.multiply(matrix[i][k]).add(s.multiply(matrix[j][k]));
-                    matrix[j][k] = c.multiply(matrix[j][k]).subtract(s.multiply(mik));
+                    matrix[i][k] = c * matrix[i][k] + s * matrix[j][k];
+                    matrix[j][k] = c * matrix[j][k] - s * mik;
                     multCount += 4;
                     sumCount++;
                     subtrCount++;
@@ -23,22 +22,22 @@ public class Rotation extends SLAEMethod{
             }
         }
 
-        BigDecimal sum;
-        BigDecimal[] result = new BigDecimal[varNum];
+        double sum;
+        double[] x = new double[matrix.length];
         for (int i = varNum-1; i >= 0; i--) {
-            sum = BigDecimal.ZERO;
-            for (int j = i+1; j < varNum; j++) {
-                sum = sum.add(matrix[i][j].multiply(result[j]));
+            sum = 0;
+            for (int j = i+1; j < eqtNum; j++) {
+                sum += matrix[i][j] * x[j];
                 multCount++;
                 sumCount++;
             }
-            result[i] = matrix[i][varNum].subtract(sum).divide(matrix[i][i], RoundingMode.HALF_EVEN);
+            x[i] = (matrix[i][varNum] - sum)/matrix[i][i];
+
             subtrCount++;
-            
             divCount++;
         }
 
-        return Model.toDoubleArr(result);
+        return x;
     }
 
 }
