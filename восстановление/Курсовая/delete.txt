@@ -1,0 +1,30 @@
+ChartSolve(double[][])
+ChartSolve
+main(String[]); void
+start(Stage): void
+solve(double[][]); void
+equaliseWorldNStage(): void
+centrate(): void
+isVisiblelnCurrSystem(Line): boolean
+expandWorld(double): void
+hasSingleSolution(double[][]): boolean
+getBiggestWorldCoordinate(Line): double
+getBiggestWorldCoordinate(Line, Line): double
+designateWorldDot(Coordinates): void
+round(double, int): double
+toBigDecMatrix(double[] []): BigDecimal[][]
+prepareWindowo: void
+update(): void
+updateWorld: void
+updateWith(Node...): void
+drawLines(): void
+screenLengthToWorld(double): double
+worldLengthToScreen(double): double
+worldToScreen(double, double): Coordinates
+screenXToWorld(double): double
+screenYToWorld(double): double
+screenToWorld(double, double): Coordinates
+screenToWorld(Coordinates): Coordinates
+drawFuncGraph(BigDecimal, BigDecimal, BigDecimal): Line
+getStraightFunc(BigDecimal, BigDecimal, BigDecimal): MathFunctionBD
+getDelta(MathFunctionBD): double

@@ -5,74 +5,22 @@ import Model.exception.InfiniteSolutionsAmountException;
 
 import java.io.*;
 import java.math.BigDecimal;
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class Model {
-    BufferedReader br;
-    BufferedWriter bw;
-    SLAEMethod method;
-    Gauss gauss = new Gauss();
-    JordanGauss jordanGauss = new JordanGauss();
-    Rotation rotation = new Rotation();
+    private BufferedReader br;
+    private BufferedWriter bw;
     private double[][] originSlae;
-    private int length;
-    private int width;
+    private int eqtNum;
+    private int varNum;
     private int consistence;
     private double[][] resultSlae;
     private double[] result;
     private String methodName;
     private String originSlaeString, resultSlaeString, resultString, arithmeticsString, totalResultString;
 
-    private int sumCount = 0, substrCount = 0, multCount = 0, divCount = 0;
-
-
-
-    /*public boolean fileIsValid(File input) {
-        String[] temp;
-        try {
-            int width, length;
-            br = new BufferedReader(new FileReader(input));
-            do
-                temp = br.readLine().split(" ");
-            while (br.ready() & temp[0].isEmpty());
-
-            if(temp[0].isEmpty())
-                return false;
-
-            for (String s : temp)
-                if(!s.matches("-?\\d+([.,]\\d+)?"))
-                    return false;
-
-            width = temp.length;
-            length = temp.length - 1;
-            originSlae = new double[length][width];
-            for (int i = 0; i < width; i++) {
-                originSlae[0][i] = Double.parseDouble(temp[i]);
-            }
-            while (br.ready()) {
-                for (int i = 1; i < length; i++) {
-                    temp = br.readLine().split(" ");
-                    width = temp.length;
-                    for (int j = 0; j < width; j++) {
-                        if(!temp[j].isEmpty() & !temp[j].isBlank()){
-                            if(!temp[j].matches("-?\\d+([.,]\\d+)?"))
-                                return false;
-                            originSlae[i][j] = Double.parseDouble(temp[j]);
-                        }
-                    }
-                }
-            }
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return true;
-    }*/
-
+    private static int sumCount = 0, subtrCount = 0, multCount = 0, divCount = 0;
 
     public boolean fileIsValid(File input) {
         List<String[]> tempList = new LinkedList<>();
@@ -133,19 +81,13 @@ public class Model {
                 e.printStackTrace();
             }
         }
-
         try {
             bw = new BufferedWriter(new FileWriter(outF));
             bw.write(totalResultString);
+            bw.flush();
+            bw.close();
         } catch (IOException e) {
             e.printStackTrace();
-        } finally {
-            try {
-                bw.flush();
-                bw.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
         }
     }
 
@@ -162,10 +104,10 @@ public class Model {
     }
 
     private String makeArithmeticsString() {
-        return arithmeticsString = "Additions: " + getSumCount() + "\n" +
-                "Subtractions: " + getSubstrCount() + "\n" +
-                "Multiplies: " + getMultCount() + "\n" +
-                "Divisions: " + getDivCount() + "\n";
+        return arithmeticsString = "Additions: " + sumCount + "\n" +
+                "Subtractions: " + subtrCount + "\n" +
+                "Multiplies: " + multCount + "\n" +
+                "Divisions: " + divCount + "\n";
     }
 
     private String makeOriginSlaeString() {
@@ -193,11 +135,6 @@ public class Model {
     }
 
     private String makeResultSlaeString() {
-        /*if (originSlae[0].length == 3)
-            for (int i = 0; i < originSlae.length; i++)
-                resultSlaeString += resultSlae[i][0] + " x" + (i + 1) + "  " + (resultSlae[i][1] >= 0 ? "+" + resultSlae[i][1] : resultSlae[i][1])
-                        + " y" + (i + 1) + "  = " + resultSlae[i][2] + "\n";*/
-
         for (int i = 0; i < resultSlae.length; i++)
             for (int j = 0; j < resultSlae[0].length; j++) {
                 int index = j + 1;
@@ -225,18 +162,14 @@ public class Model {
 
     }
 
-
-    public String getMethodName() {
-        return methodName;
-    }
-
-
     public void generateFloatMatrix(int varNum, int eqtNum) {
         double[][] matrix = new double[eqtNum][varNum + 1];
         for (int i = 0; i < eqtNum; i++)
             for (int j = 0; j < varNum + 1; j++)
                 matrix[i][j] = Math.random() * 10;
         this.originSlae = matrix;
+        this.varNum = varNum;
+        this.eqtNum = eqtNum;
     }
 
     public void generateIntMatrix(int varNum, int eqtNum) {
@@ -245,11 +178,8 @@ public class Model {
             for (int j = 0; j < varNum + 1; j++)
                 matrix[i][j] = Math.round(Math.random() * 10);
         this.originSlae = matrix;
-    }
-
-    public void solve(double[][] matrix, String methodName) {
-        setMatrix(matrix);
-        solveMatrixByMethod(methodName);
+        this.varNum = varNum;
+        this.eqtNum = eqtNum;
     }
 
     public static double[][] toDoubleMatrix(BigDecimal[][] m) {
@@ -269,45 +199,212 @@ public class Model {
         return res;
     }
 
-    public static double[] toDoubleArr(BigDecimal[] arr) {
-        double[] res = new double[arr.length];
-        for (int i = 0; i < arr.length; i++)
-            res[i] = arr[i].doubleValue();
-        return res;
+    private void nullifyCounters() {
+        sumCount = 0;
+        subtrCount = 0;
+        multCount = 0;
+        divCount = 0;
     }
-    public static BigDecimal[] toBigDecimalArr(double[] arr) {
-        BigDecimal[] res = new BigDecimal[arr.length];
-        for (int i = 0; i < arr.length; i++)
-            res[i] = BigDecimal.valueOf(arr[i]);
-        return res;
-    }
-
-
 
     public void solveMatrixByMethod(String methodName) {
-        if (matixIsReady()) {
-            this.length = originSlae.length;
-            this.width = originSlae[0].length;
-            if ((this.consistence = SLAEMethod.getMatrixConsistence(cloneMatrix(originSlae))) == -1) {
+        if (matrixIsReady()) {
+            this.eqtNum = originSlae.length;
+            this.varNum = originSlae[0].length - 1;
+            if ((this.consistence = getMatrixConsistence(cloneMatrix(originSlae))) == -1) {
                 throw new InconsistentMatrixException("Matrix is inconsistent");
             } else if (this.consistence == 1)
                 throw new InfiniteSolutionsAmountException("Matrix has infinite solutions amount");
         }
-        System.out.println("originSlae before coutings:");
-        showMatrix(originSlae);
         this.methodName = methodName;
-        if (methodName == "Gauss")
-            method = gauss;
-        else if (methodName == "Jordan-Gauss")
-            method = jordanGauss;
-        else if (methodName == "Rotation")
-            method = rotation;
-        method.nullifyCounters();
-        synchronizeModelNMethodCounters();
-        method.setMatrix(cloneMatrix(originSlae));
-        result = method.solve();
-        synchronizeModelNMethodCounters();
-        this.resultSlae = method.getMatrix();
+        nullifyCounters();
+        if (methodName == "Gauss") {
+            result = gaussSolve(cloneMatrix(originSlae));
+        }
+        else if (methodName == "Jordan-Gauss") {
+            result = jordanGaussSolve(cloneMatrix(originSlae));
+        }
+        else if (methodName == "Rotation") {
+            result = rotationSolve(cloneMatrix(originSlae));
+        }
+    }
+    public double[] gaussSolve(double[][] matrix) {
+        makeTriangleView(matrix);
+        return backtrace(matrix);
+    }
+
+    public static void makeTriangleView(double[][] matrix) {
+        int eqtNum = matrix.length;
+        int eqtWidth = matrix[0].length - 1;
+
+        for (int i = 0; i < eqtNum; i++) {
+            int max = i;
+            for (int j = i+1; j < eqtNum; j++)
+                if (Math.abs(matrix[j][i]) < Math.abs(matrix[max][j]))
+                    max = j;
+
+
+            //matrix[i][eqtWidth] matrix[max][eqtWidth]
+            //vector[i] vector[max]
+            double[] temp = matrix[i];
+            matrix[i] = matrix[max];
+            matrix[max] = temp;
+
+            //don't need this line if vector is not in use(extended matrix in 'matrix' variable)
+            /*double v = matrix[i][eqtWidth];
+            matrix[i][eqtWidth] = matrix[max][eqtWidth];
+            matrix[max][eqtWidth] = v;*/
+
+            /*if (Math.abs(matrix[i][i]) <= EPSILON)
+                throw new RuntimeException("Matrix is singular");*/
+
+            for (int k = i+1; k < eqtNum; k++) {
+                double alfa = matrix[k][i] / matrix[i][i];
+                divCount++;
+                //matrix[k][eqtWidth]  matrix[i][eqtWidth]
+                //vector[k]  vector[i]
+                matrix[k][eqtWidth] -= alfa * matrix[i][eqtWidth];
+                multCount++;
+                subtrCount++;
+
+                for (int j = i; j < eqtNum; j++) {
+                    matrix[k][j] -= alfa*matrix[i][j];
+                    multCount++;
+                    subtrCount++;
+                }
+            }
+        }
+
+    }
+    private double[] backtrace(double[][] matrix) {
+        int length = matrix.length;
+        int width = matrix[0].length;
+        double[] x = new double[length];
+
+        for (int i = length-1; i >= 0; i--) {
+            double sum = 0;
+            for (int j = i+1; j < length; j++) {
+                sum += matrix[i][j] * x[j];
+                multCount++;
+                sumCount++;
+            }
+            //matrix[i][width-1]
+            //vector[i]
+            x[i] = (matrix[i][width-1] - sum)/matrix[i][i];
+            subtrCount++;
+            divCount++;
+        }
+        this.resultSlae = matrix;
+        return x;
+    }
+
+    public double[] jordanGaussSolve(double[][] matrix) {
+        int n = matrix.length;
+        if ((matrix[0].length - matrix.length) != 1)
+            throw new RuntimeException("Coefficient matrix is not square!");
+        if (matrix[0][0] == 0) {
+            for (int i = 0; i < varNum; i++) {
+                matrix[0][i] += 1;
+            }
+        }
+        for (int i = 0; i < n; i++) {
+            double permittingElement = matrix[i][i];
+
+            for (int j = 0; j < n+1; j++) {                //making permitting element equal to 1
+                matrix[i][j] /= permittingElement;
+                divCount++;
+            }
+
+            permittingElement = matrix[i][i];
+
+            for (int j = i+1; j < matrix[0].length; j++)
+                for (int k = 0; k < n; k++)
+                    if (k != i) {
+                        matrix[k][j] = permittingElement * matrix[k][j] - matrix[i][j] * matrix[k][i];
+                        multCount += 2;
+                        subtrCount++;
+                    }
+
+            for (int j = 0; j < n; j++)
+                if (i != j)
+                    matrix[j][i] = 0;
+        }
+
+        double[] x = new double[n];
+        for (int j = 0; j < n; j++)
+            x[j] = matrix[j][n];
+        this.resultSlae = matrix;
+
+        return x;
+    }
+
+    public double[] rotationSolve(double[][] matrix) {
+        double c,s, mik;
+        for (int i = 0 ; i < matrix.length; i++) {
+            for (int j = i+1; j < matrix.length; j++) {
+                c = matrix[i][i];
+                s = matrix[j][i];
+                for (int k = 0; k < matrix[0].length; k++) {
+                    mik = matrix[i][k];
+                    matrix[i][k] = c * matrix[i][k] + s * matrix[j][k];
+                    matrix[j][k] = c * matrix[j][k] - s * mik;
+                    multCount += 4;
+                    sumCount++;
+                    subtrCount++;
+                }
+            }
+        }
+
+        double sum;
+        double[] x = new double[varNum];
+        for (int i = varNum-1; i >= 0; i--) {
+            sum = 0;
+            for (int j = i+1; j < eqtNum; j++) {
+                sum += matrix[i][j] * x[j];
+                multCount++;
+                sumCount++;
+            }
+            x[i] = (matrix[i][varNum] - sum)/matrix[i][i];
+
+            subtrCount++;
+            divCount++;
+        }
+        this.resultSlae = matrix;
+
+        return x;
+    }
+
+    public static int getMatrixConsistence(double[][] m) {
+        makeTriangleView(m);
+        int extendedMatrixRank = getExtendedMatrixRank(m);
+        if(extendedMatrixRank < m[0].length-1)
+            return 1;
+        return Integer.compare(getRegularMatrixRank(m), extendedMatrixRank);
+    }
+
+    private static int getExtendedMatrixRank(double[][] m) {
+        int nonZeroRawCounter = 0;
+        for (int i = 0; i < m.length; i++) {
+            for (int j = 0; j < m[0].length; j++) {
+                if(m[i][j] != 0){
+                    nonZeroRawCounter++;
+                    j = m[0].length;
+                }
+            }
+        }
+        return nonZeroRawCounter;
+    }
+
+    private static int getRegularMatrixRank(double[][] m) {
+        int nonZeroRawCounter = 0;
+        for (int i = 0; i < m.length; i++) {
+            for (int j = 0; j < m[0].length-1; j++) {
+                if(m[i][j] != 0){
+                    nonZeroRawCounter++;
+                    j = m[0].length;
+                }
+            }
+        }
+        return nonZeroRawCounter;
     }
 
     public void nullifyResultingStrings() {
@@ -315,16 +412,9 @@ public class Model {
         resultSlaeString = "";
         resultString = "";
         arithmeticsString = "";
+        totalResultString = "";
     }
-
-    private void synchronizeModelNMethodCounters() {
-        this.divCount = method.divCount;
-        this.multCount = method.multCount;
-        this.sumCount = method.sumCount;
-        this.substrCount = method.subtrCount;
-    }
-
-    public boolean matixIsReady() {
+    public boolean matrixIsReady() {
         return this.originSlae != null;
     }
 
@@ -337,112 +427,27 @@ public class Model {
     }
 
 
-    public static void showMatrix(double[][] matrix) {
-        for (int i = 0; i < matrix.length; i++) {
-            System.out.print("|");
-            for (int j = 0; j < matrix[0].length; j++) {
-                if (j < matrix[0].length - 1)
-                    System.out.print(String.format(" %.3f |", matrix[i][j]));
-                else
-                    System.out.println(String.format(" %.3f |", matrix[i][j]));
-            }
-        }
-        System.out.println();
-    }
-
     public int getVarNum() {
-        return originSlae[0].length - 1;
+        return varNum;
     }
 
     public int getEquationsNum() {
-        return originSlae.length;
-    }
-
-
-    public double[][] extractMatrix(double[][] slae) {
-        double[][] matrix = new double[slae.length][slae.length];
-        for (int i = 0; i < slae.length; i++)
-            for (int j = 0; j < slae.length; j++)
-                matrix[i][j] = slae[i][j];
-        return matrix;
-    }
-
-    public double[] extractVector(double[][] slae) {
-        double[] vector = new double[slae.length];
-        for (int i = 0; i < slae.length; i++)
-            vector[i] = slae[i][slae[0].length - 1];
-        return vector;
-    }
-
-    private double[][] makeSlae(double[][] matrix, double[] resVector) {
-        double[][] slae = new double[matrix.length][matrix.length + 1];
-        for (int i = 0; i < matrix.length; i++) {
-            for (int j = 0; j < matrix.length + 1; j++) {
-                if (j < matrix.length)
-                    slae[i][j] = matrix[i][j];
-                else
-                    slae[i][j] = resVector[i];
-            }
-        }
-        return slae;
+        return eqtNum;
     }
 
     public void setMatrix(double[][] matrix) {
         this.originSlae = matrix;
+        this.varNum = matrix[0].length - 1;
+        this.eqtNum = matrix.length;
     }
 
     public boolean resultExists() {
         return result != null;
     }
 
-    public boolean matrixExists() {
-        return originSlae != null;
-    }
-
     public double[][] getOriginSlae() {
         return originSlae;
     }
-
-    public double[][] getResultSlae() {
-        return resultSlae;
-    }
-
-    public double[] getResult() {
-        return result;
-    }
-
-    public int getSumCount() {
-        return sumCount;
-    }
-
-    public int getSubstrCount() {
-        return substrCount;
-    }
-
-    public String getOriginSlaeString() {
-        return originSlaeString;
-    }
-
-    public String getResultSlaeString() {
-        return resultSlaeString;
-    }
-
-    public String getResultString() {
-        return resultString;
-    }
-
-    public String getArithmeticsString() {
-        return arithmeticsString;
-    }
-
-    public int getMultCount() {
-        return multCount;
-    }
-
-    public int getDivCount() {
-        return divCount;
-    }
-
 
 }
 

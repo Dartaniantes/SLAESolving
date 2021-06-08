@@ -1,38 +1,26 @@
-import Model.SLAEMethod;
 import Model.Model;
 import javafx.application.Application;
-import javafx.geometry.Point2D;
-import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
-import javafx.scene.robot.Robot;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.Shape;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
-import javafx.stage.DirectoryChooser;
-import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
-import java.io.File;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.concurrent.atomic.AtomicReference;
 
 public class ChartSolve extends Application {
     private Stage stage;
     private Scene scene;
     private StackPane root;
     private Pane worldPane;
-    private AnchorPane infoPane;
     private String title = "Chart Solve";
     private double height =720;
     private double width =  720;
@@ -54,7 +42,6 @@ public class ChartSolve extends Application {
 
     private double scaleX = 1.0;
     private double scaleY = 1.0;
-
 
     public static void main(String[] args) {
         launch(args);
@@ -82,7 +69,7 @@ public class ChartSolve extends Application {
 
 
     private void solve(double[][] m) {
-        BigDecimal[][] matrix = toBigDecMatrix(Model.cloneMatrix(m));
+        BigDecimal[][] matrix = Model.toBigDecimalMatrix(Model.cloneMatrix(m));
 
         l1 = drawFuncGraph(matrix[0][0], matrix[0][1], matrix[0][2]);
         l2 = drawFuncGraph(matrix[1][0], matrix[1][1], matrix[1][2]);
@@ -109,7 +96,6 @@ public class ChartSolve extends Application {
                 worldResult = screenToWorld(screenResult);
             }
 
-            System.out.println("WorldResutl  = " + worldResult.toString());
             updateWorld();
             equaliseWorldNStage();
         } else {
@@ -170,20 +156,7 @@ public class ChartSolve extends Application {
     }
 
     private boolean hasSingleSolution(double[][] m) {
-        return SLAEMethod.getMatrixConsistence(Model.cloneMatrix(m)) == 0;
-    }
-
-
-
-    private boolean fitsIntoCurrSystem(Line l) {
-        return l.getStartX() < worldMaxX &&
-                l.getStartX() > worldMinX &&
-                l.getEndX() < worldMaxX &&
-                l.getEndX() > worldMinX &&
-                l.getStartY() < worldMaxY &&
-                l.getStartY() > worldMinY &&
-                l.getEndY() < worldMaxY &&
-                l.getEndY() > worldMinY;
+        return Model.getMatrixConsistence(Model.cloneMatrix(m)) == 0;
     }
 
 
@@ -253,21 +226,11 @@ public class ChartSolve extends Application {
         vertical.setStrokeWidth(2);
         worldPane.getChildren().addAll(horizontal, vertical, xString, yString);
     }
-
     private double round(double value, int places) {
         if (places < 0) throw new IllegalArgumentException();
         BigDecimal bd = BigDecimal.valueOf(value);
         bd = bd.setScale(places, RoundingMode.HALF_UP);
         return bd.doubleValue();
-    }
-
-    private BigDecimal[][] toBigDecMatrix(double[][] m) {
-        Model.showMatrix(m);
-        BigDecimal[][] result = new BigDecimal[m.length][m[0].length];
-        for (int i = 0; i < m.length; i++)
-            for (int j = 0; j < m[0].length; j++)
-                result[i][j] = BigDecimal.valueOf(m[i][j]);
-        return result;
     }
 
     private void prepareWindow() {
@@ -362,17 +325,13 @@ public class ChartSolve extends Application {
         solve(slae);
     }
 
-
     private void updateWorld() {
         worldPane.getChildren().clear();
         drawLines();
     }
-
     private void updateWith(Node... n) {
         worldPane.getChildren().addAll(n);
     }
-
-    private int drawLinesCounter = 0;
     private void drawLines() {
         int smallStrWidth = 1;
         int bigStrWidth = 3;
@@ -523,7 +482,6 @@ public class ChartSolve extends Application {
                 screenYToWorld(screen.y)
         );
     }
-
     private Line drawFuncGraph(BigDecimal xCoef, BigDecimal yCoef, BigDecimal freeCoef){
         if(yCoef.doubleValue() == 0 & xCoef.doubleValue() == 0)
             throw new RuntimeException("Cant draw graph");
@@ -565,12 +523,12 @@ public class ChartSolve extends Application {
         screenEnd = worldToScreen(worldEnd);
         return new Line(screenStart.x, screenStart.y, screenEnd.x, screenEnd.y);
     }
-
     private MathFunctionBD getStraightFunc(BigDecimal varCoef, BigDecimal denominator, BigDecimal freeVal){
         if (denominator.doubleValue() == 0)
             return null;
         return var -> (freeVal.subtract(varCoef.multiply(var))).divide(denominator, 2, RoundingMode.HALF_UP);
     }
+
 
     private double getDelta(MathFunctionBD f) {
         return f.count(BigDecimal.valueOf(2))
@@ -597,9 +555,5 @@ public class ChartSolve extends Application {
             
             return "Coordinates:" + x + " | " + y;
         }
-        private double getBigger() {
-            return x >= y ? x : y;
-        }
     }
-
 }

@@ -1,18 +1,54 @@
-Method: Gauss
-Input slae :
-8.0 x1  +9.0 y1  = 3.0
-3.0 x2  +3.0 y2  = 9.0
+-br:Buffered Reader
+-bw:Buffered Writer
+-eqtNum,varNum,consistence:int
+-originSlae,resultSlae:double[][]
+-result:double[]
+-methodName,originSlaeString:String
+-resultSlaeString,resultString:String
+-arithmeticsString,totalResultString:String
+-sumCount,subtrCount,multCount,divCount:int
 
-Result slae : 
-3.0 x1  +3.0 y1  = 9.0
-0.0 x2  +1.0 y2  = -21.0
-3,00 x1  + 3,00 x2   =   9,00 
-0,00 x1  + 1,00 x2   =   -21,00 
 
-Result :
-x =  24,000 
-y =  -21,000 
-Additions: 1
-Subtractions: 5
-Multiplies: 4
-Divisions: 3
++filelsValid(File):boolean
+-getEquationCoefs(String[],int):double[]
++writeResultToFile(String):void
++makeTotalResultString():String
++makeArithmeticsString():String
++makeOriginSlaeString():String
++makeResultSlaeString():String
++makeResultString():String
++generateFloatMatrix(int,int):void
++generatelntMatrix(int,int):void
++toDoubleMatrix(BigDecimal[][]):double[][]
++toBigDecimalMatrix(double[][]):BigDecimal[][]
+-nullifyCounters():void
++solveMatrixByMethod(String):void
++gaussSolve(double[][]):double[]
+m+akeTriangleView(double[][]):void
+-backtrace(double[][]):double[]
++jordanGaussSolve(double[][]):double[]
++rotationSolve(double[][]):double[]
++getMatrixConsistence(double[][]):int
+-getExtended MatrixRank(double[][]):int
+-getRegularMatrixRank(double[][]):int
++nullifyResultingStrings():void
++matixisReady():boolean
++cloneMatrix(double[][]):double[][]
++getVarNum():int
++getEquationsNum():int
++setMatrix(double[][]):void
++resultExists():boolean
++matrixExists():boolean
++getOriginSlae():double[][]
++getMethodName():String
++getResultSlae():double[][]
++getResult():double[]
++getSumCount():int
++getSubtrCount():int
+-getOriginSlaeString():String
+-getResultSlaeString():String
+-getResultString():String
+-getArithmeticsString():String
++getMultCount():int
++getDivCount():int
+

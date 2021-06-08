@@ -26,7 +26,7 @@ public class View extends Application {
     VBox readPane, manPane, genPane, alertPane, resultPane, genChoosePane;
     AnchorPane buttonPane;
     GridPane manFieldsPane;
-    Button solveB, genGenDoubleB, okB, genGenIntB, okRB, chooseInputFileB;
+    Button solveB, genGenDoubleB, okB, genGenIntB, okRB, chooseInputFileB,chooseOutputDirB;
     TextField inputFileF, manCoefsF[][], manFreeValsF[];
     Label inputL, methodL, manVarNumL, readWarnL, genVarNumL, enterPathL, generateMatrixL, generatedMatrixL,
             chooseFileFirstlyL, incorrectInputL, resultWrittenL, inputFieldEmptyL, fileDoesntExistL,
@@ -37,7 +37,6 @@ public class View extends Application {
     ChoiceBox<Integer> manVarNumCB, genVarNumCB, genEqtNumCB, manEqtNumCB;
     FileChooser fileChoose;
     DirectoryChooser dirChoose;
-    Button chooseOutputDirB;
 
     public static void main(String[] args) {
         launch(args);
@@ -94,22 +93,14 @@ public class View extends Application {
         solveB.setOnAction(actionEvent -> {
             try {
                 model.nullifyResultingStrings();
-                //
-                /*if (outputFileF.getText().isEmpty())
-                    alertPane.getChildren().remove(0);
-                    alertPane.getChildren().add(0, chooseFileFirstlyL);
-                    alertStage.show();*/
-
-
-                if (inputTypeList.getValue() == "Generate randomly" && !model.matrixExists()) {
+                if (inputTypeList.getValue() == "Generate randomly" && !model.matrixIsReady()) {
                     alertPane.getChildren().remove(0);
                     alertPane.getChildren().add(0, generateMatrixL);
                     alertStage.show();
-                } else if (inputTypeList.getValue() == "Enter manually") {
+                } else if (inputTypeList.getValue() == "Enter manually") 
                     makeMatrixManually();
-                }
 
-                // add zero strings check here
+
                 model.solveMatrixByMethod(methodList.getValue());
                 if (model.getVarNum() == 2 && model.getEquationsNum() == 2)
                     getChartSolving(model.getOriginSlae());
@@ -168,7 +159,9 @@ public class View extends Application {
         enterPathL = new Label("Enter valid input file path!");
         enterPathL.setPadding(new Insets(10, 10, 10, 10));
         chooseFileFirstlyL = new Label("Enter valid output file path!");
-        incorrectInputL = new Label("Input matrix file must contain only decimal or float(using '.') values followed by '-' if needed");
+        incorrectInputL = new Label("Input matrix file must contain only " +
+                                    "\ndecimal or float(using '.') values " +
+                                    "\nfollowed by '-' if needed");
         inputFieldEmptyL = new Label("Input file field is empty");
         fileDoesntExistL = new Label("Specified file doesn't exist");
         generateMatrixL = new Label("Generate matrix firstly!");
@@ -357,26 +350,6 @@ public class View extends Application {
         return s.matches("-?\\d+([.,]\\d+)?");
     }
 
-    /*public String resultToString(double[] result) {
-        String res = "";
-        int index;
-        if (result.length == 2) {
-            res += String.format("x" + "  =  " + " %.2f \n", result[0]);
-            res += String.format("y" + "  =  " + " %.2f \n", result[1]);
-        } else
-            for (int i = 0; i < result.length; i++) {
-                index = i + 1;
-                res += String.format("x" + index + "  =  " + " %.2f \n", result[i]);
-            }
-            res += "Additions: " + model.getSumCount() + "\n" +
-                    "Subtractions: " + model.getSubstrCount() + "\n" +
-                    "Multiplies: " + model.getMultCount() + "\n" +
-                    "Divisions: " + model.getDivCount() + "\n";
-        return res;
-    }*/
-
-
-
     public void setManualGridPane(int varNum, int eqtNum) {
         manCoefsF = new TextField[eqtNum][varNum];
         manFreeValsF = new TextField[eqtNum];
@@ -384,13 +357,6 @@ public class View extends Application {
             for (int j = 0; j < varNum; j++) {
                 manCoefsF[i][j] = new TextField("0");
                 manCoefsF[i][j].setMaxSize(30, 30);
-                int finalI = i;
-                int finalJ = j;
-                /*manCoefsF[i][j].textProperty().addListener((observable, oldValue, newValue) -> {
-                    if (!newValue.matches("\\d*")) {
-                        manCoefsF[finalI][finalJ].setText(newValue.replaceAll("[^\\d]", ""));
-                    }
-                });*/
                 manFieldsPane.getChildren().add(manCoefsF[i][j]);
                 GridPane.setConstraints(manCoefsF[i][j], j, i);
                 if (j + 2 == varNum+1) {
