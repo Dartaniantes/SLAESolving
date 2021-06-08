@@ -258,6 +258,8 @@ public class Model {
                 throw new RuntimeException("Matrix is singular");*/
 
             for (int k = i+1; k < eqtNum; k++) {
+                if(matrix[i][i] == 0)
+                    addOneToEachElement(matrix[i]);
                 double alfa = matrix[k][i] / matrix[i][i];
                 divCount++;
                 //matrix[k][eqtWidth]  matrix[i][eqtWidth]
@@ -273,8 +275,14 @@ public class Model {
                 }
             }
         }
-
     }
+
+    private static void addOneToEachElement(double[] arr) {
+        for (int i = 0; i < arr.length; i++) {
+            arr[i] += 1;
+        }
+    }
+
     private double[] backtrace(double[][] matrix) {
         int length = matrix.length;
         int width = matrix[0].length;
