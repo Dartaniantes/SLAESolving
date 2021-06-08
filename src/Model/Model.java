@@ -258,8 +258,10 @@ public class Model {
                 throw new RuntimeException("Matrix is singular");*/
 
             for (int k = i+1; k < eqtNum; k++) {
-                if(matrix[i][i] == 0)
+                if (matrix[i][i] == 0) {
                     addOneToEachElement(matrix[i]);
+                    sumCount += matrix[i].length;
+                }
                 double alfa = matrix[k][i] / matrix[i][i];
                 divCount++;
                 //matrix[k][eqtWidth]  matrix[i][eqtWidth]
