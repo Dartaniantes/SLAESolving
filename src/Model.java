@@ -1,8 +1,10 @@
 import Model.exception.InconsistentMatrixException;
 import Model.exception.InfiniteSolutionsAmountException;
+import Model.exception.InvalidInputException;
 
 import java.io.*;
 import java.math.BigDecimal;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -226,14 +228,15 @@ public class Model {
     //перевіряє матрицю з поля класу на єдиність рішення, вирішує заданим методом та
     // записує результат у поле результату класу
     public void solveMatrixByMethod(String methodName) {
-        if (matrixIsReady()) {
-            this.eqtNum = originSlae.length;
-            this.varNum = originSlae[0].length - 1;
-            if ((this.consistence = getMatrixConsistence(cloneMatrix(originSlae))) == -1) {
-                throw new InconsistentMatrixException("Matrix is inconsistent");
-            } else if (this.consistence == 1)
-                throw new InfiniteSolutionsAmountException("Matrix has infinite solutions amount");
+        if (!matrixIsReady()) {
+            throw new InvalidInputException("Generate or read matrix from file firstly");
         }
+        this.eqtNum = originSlae.length;
+        this.varNum = originSlae[0].length - 1;
+        if ((this.consistence = getMatrixConsistence(cloneMatrix(originSlae))) == -1) {
+            throw new InconsistentMatrixException("Matrix is inconsistent");
+        } else if (this.consistence == 1)
+            throw new InfiniteSolutionsAmountException("Matrix has infinite solutions amount");
         this.methodName = methodName;
         nullifyCounters();
         if (methodName == "Gauss") {
@@ -361,7 +364,10 @@ public class Model {
     public double[] rotationSolve(double[][] matrix) {
         double c,s, mik;
         for (int i = 0 ; i < matrix.length; i++) {
+            reduceEachInLength(matrix[i]);
             for (int j = i+1; j < matrix.length; j++) {
+                reduceEachInLength(matrix[i]);
+                reduceEachInLength(matrix[j]);
                 c = matrix[i][i];
                 s = matrix[j][i];
                 for (int k = 0; k < matrix[0].length; k++) {
@@ -384,6 +390,10 @@ public class Model {
                 multCount++;
                 sumCount++;
             }
+            if (matrix[i][i] == 0) {
+                addOneToEachElement(matrix[i]);
+                sum += matrix[i].length;
+            }
             x[i] = (matrix[i][varNum] - sum)/matrix[i][i];
 
             subtrCount++;
@@ -392,6 +402,44 @@ public class Model {
         this.resultSlae = matrix;
 
         return x;
+    }
+
+    public static void main(String[] args) {
+        double[] n = new double[6];
+        Arrays.fill(n, 31234512450000000.21);
+        System.out.println(String.format("%f", n[4]));
+        reduceEachInLength(n);
+        System.out.println(String.format("%f", n[4]));
+    }
+
+    private static void reduceEachInLength(double[] arr) {
+        for (int i = 0; i < arr.length; i++)
+            arr[i] = reduceInLength(arr[i]);
+    }
+
+    private static double reduceInLength(double val) {
+        String[] arr =String.format("%f", val).split(",");
+        if(arr[0].charAt(0) == '0' || arr[0].length() < 8)
+            return val;
+        String valS = arr[0];
+        int zerosCounter = 0;
+        int index = valS.length()-1;
+        char ch = valS.charAt(index);
+        while (ch == '0') {
+            zerosCounter++;
+            index--;
+            ch = valS.charAt(index);
+        }
+        int nonZeroDigitsAmount = index+1;
+        if (nonZeroDigitsAmount < 5 & zerosCounter > 7) {
+            return Double.parseDouble(Long.parseLong(valS.substring(0, 7)) +
+                    "." + Long.parseLong(arr[1]));
+        }
+        if(nonZeroDigitsAmount >= 5 & zerosCounter > 5) {
+            return Double.parseDouble(Long.parseLong(valS.substring(0, nonZeroDigitsAmount+1)) +
+                                        "." + Long.parseLong(arr[1]));
+        }
+        return val;
     }
 
     //повертає -1, якщо матриця несумісна, 0, якщо має єдине значення, 1, якщо безліч
@@ -447,6 +495,8 @@ public class Model {
 
     //поветає копію вхідної матриці, що дохволяє проводити над нею зміни не втрачаючи початкового стану
     public static double[][] cloneMatrix(double[][] matrix) {
+        if(matrix == null)
+            return null;
         double[][] result = new double[matrix.length][matrix[0].length];
         for (int i = 0; i < matrix.length; i++)
             for (int j = 0; j < matrix[0].length; j++)
