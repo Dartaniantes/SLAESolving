@@ -473,6 +473,7 @@ public class Model {
         return zerosCounter;
     }
 
+    // HHHEEE'SSS AALIIIIIIVEEE
     private static boolean numIsTooBigWithTooMuchZeros(double num) {
         if(num == 0 || num < 9999999999999999.9)
             return false;
