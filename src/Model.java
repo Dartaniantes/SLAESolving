@@ -364,8 +364,8 @@ public class Model {
     public double[] rotationSolve(double[][] matrix) {
         double c,s, mik;
         for (int i = 0 ; i < matrix.length; i++) {
-            if(numIsTooBigWithTooMuchZeros(matrix[i][i]))
-                divideEach(matrix[i], Math.pow(10, getMinZerosAmountFromIndex(matrix[i], i)));
+            if(numIsTooBigWithTooMuchZeros(matrix[i][i]) && getMinZerosAmountFromIndex(matrix[i], i)-1 > 1)
+                divideEach(matrix[i], Math.pow(10, getMinZerosAmountFromIndex(matrix[i], i)-1));
             for (int j = i+1; j < matrix.length; j++) {
                 if(numIsTooBigWithTooMuchZeros(matrix[j][i]) && getMinZerosAmountFromIndex(matrix[j], i)-1 > 1)
                     divideEach(matrix[j], Math.pow(10, getMinZerosAmountFromIndex(matrix[j], i)-1));
@@ -379,6 +379,13 @@ public class Model {
                     sumCount++;
                     subtrCount++;
                 }
+                if(numIsTooBigWithTooMuchZeros(matrix[i][i]) && getMinZerosAmountFromIndex(matrix[i], i)-1 > 1)
+                    divideEach(matrix[i], Math.pow(10, getMinZerosAmountFromIndex(matrix[i], i)-1));
+                if(numIsTooBigWithTooMuchZeros(matrix[j][i]) && getMinZerosAmountFromIndex(matrix[j], i)-1 > 1)
+                    divideEach(matrix[j], Math.pow(10, getMinZerosAmountFromIndex(matrix[j], i)-1));
+                System.out.println();
+                showMatrix(matrix);
+                System.out.println();
             }
         }
 
@@ -411,7 +418,7 @@ public class Model {
         for (int i = 0; i < m.length; i++) {
             System.out.print("|");
             for (int j = 0; j < m[0].length; j++) {
-                System.out.print(m[i][j] + "|");
+                System.out.printf("%f|",m[i][j]);
             }
             System.out.println();
         }
@@ -419,20 +426,7 @@ public class Model {
     }
 
     public static void main(String[] args) {
-        /*double[] n = new double[6];
-        n[0] = 312345124500000000000000000000000000000000000000000000000000000000.21;
-        n[1] = 312345124500000000000000000000000000000000000000000000000000.21;
-        n[2] = 3123451245000000000000000000000000000000000000.21;
-        n[3] = 31234512450000000000000000000000000000000000000000000000000000.21;
-        n[4] = 31234512450000000000000000000000000000000000000000000000000000.21;
-        n[5] = 31234512450000000000000000000000000000000000000000000000000000.21;
-        System.out.println(String.format("%f", n[4]));
-        System.out.println(Arrays.toString(n));
-        System.out.println("num is too long = "+numIsTooBigWithTooMuchZeros(n[0]));
-        System.out.println("min zeros = " + getMinZerosAmountFromIndex(n, 0));
-        divideEach(n, Math.pow(10, getMinZerosAmountFromIndex(n, 0)-1));
-        System.out.println(Arrays.toString(n));*/
-        double a = -3;
+        double a = 0;
         double b = 0;
 
         System.out.println(a/b);
@@ -440,12 +434,7 @@ public class Model {
 
     private static void divideEach(double[] arr, double val) {
         for (int i = 0; i < arr.length; i++)
-            if (arr[i] != 0) {
-                System.out.printf("before divide:%f", arr[i]);
-                arr[i] /= val;
-                System.out.printf("after divide:%f", arr[i]);
-            }
-
+            arr[i] /= val;
     }
 
     private static int getMinZerosAmountFromIndex(double[] arr, int index) {
@@ -464,7 +453,6 @@ public class Model {
         int zerosCounter = 0;
         int index = valS.length()-1;
         char ch = valS.charAt(index);
-        System.out.println("vals = " +valS);
         while (ch == '0' & index > 0 ) {
             zerosCounter++;
             ch = valS.charAt(index);
