@@ -1,54 +1,12 @@
--br:Buffered Reader
--bw:Buffered Writer
--eqtNum,varNum,consistence:int
--originSlae,resultSlae:double[][]
--result:double[]
--methodName,originSlaeString:String
--resultSlaeString,resultString:String
--arithmeticsString,totalResultString:String
--sumCount,subtrCount,multCount,divCount:int
+4,00  +4,00  +8,00  +5,00 +9,00 +10,00 + 6,00  =   2,00
+4,00 +3,00  +1,00  +2,00 +1,00 +5,00 + 4,00  =   3,00
+7,00  +8,00  +9,00  +3,00 +4,00 +6,00 + 6,00  =   5,00
+10,00  +1,00  +10,00  +1,00 +5,00 +1,00 + 6,00  =   1,00
+1,00  +6,00  +1,00  +7,00 +5,00 +2,00 + 0,00  =   4,00
+4,00  +10,00  +3,00  +3,00 +8,00 +3,00 + 5,00  =   5,00
+7,00  +4,00  +5,00  +8,00 +3,00 +6,00 + 1,00  =   2,00
 
-
-+filelsValid(File):boolean
--getEquationCoefs(String[],int):double[]
-+writeResultToFile(String):void
-+makeTotalResultString():String
-+makeArithmeticsString():String
-+makeOriginSlaeString():String
-+makeResultSlaeString():String
-+makeResultString():String
-+generateFloatMatrix(int,int):void
-+generatelntMatrix(int,int):void
-+toDoubleMatrix(BigDecimal[][]):double[][]
-+toBigDecimalMatrix(double[][]):BigDecimal[][]
--nullifyCounters():void
-+solveMatrixByMethod(String):void
-+gaussSolve(double[][]):double[]
-m+akeTriangleView(double[][]):void
--backtrace(double[][]):double[]
-+jordanGaussSolve(double[][]):double[]
-+rotationSolve(double[][]):double[]
-+getMatrixConsistence(double[][]):int
--getExtended MatrixRank(double[][]):int
--getRegularMatrixRank(double[][]):int
-+nullifyResultingStrings():void
-+matixisReady():boolean
-+cloneMatrix(double[][]):double[][]
-+getVarNum():int
-+getEquationsNum():int
-+setMatrix(double[][]):void
-+resultExists():boolean
-+matrixExists():boolean
-+getOriginSlae():double[][]
-+getMethodName():String
-+getResultSlae():double[][]
-+getResult():double[]
-+getSumCount():int
-+getSubtrCount():int
--getOriginSlaeString():String
--getResultSlaeString():String
--getResultString():String
--getArithmeticsString():String
-+getMultCount():int
-+getDivCount():int
-
+000000000000000000000000000000000000000000000
+00000000000000000000000000000000000000000000
+1441505400504084000000000000000
+14415054005040840000000000000000

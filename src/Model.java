@@ -364,10 +364,11 @@ public class Model {
     public double[] rotationSolve(double[][] matrix) {
         double c,s, mik;
         for (int i = 0 ; i < matrix.length; i++) {
-            reduceEachInLength(matrix[i]);
+            if(numIsTooBigWithTooMuchZeros(matrix[i][i]))
+                divideEach(matrix[i], Math.pow(10, getMinZerosAmountFromIndex(matrix[i], i)));
             for (int j = i+1; j < matrix.length; j++) {
-                reduceEachInLength(matrix[i]);
-                reduceEachInLength(matrix[j]);
+                if(numIsTooBigWithTooMuchZeros(matrix[j][i]) && getMinZerosAmountFromIndex(matrix[j], i)-1 > 1)
+                    divideEach(matrix[j], Math.pow(10, getMinZerosAmountFromIndex(matrix[j], i)-1));
                 c = matrix[i][i];
                 s = matrix[j][i];
                 for (int k = 0; k < matrix[0].length; k++) {
@@ -380,6 +381,8 @@ public class Model {
                 }
             }
         }
+
+//        showMatrix(matrix);
 
         double sum;
         double[] x = new double[varNum];
@@ -404,43 +407,90 @@ public class Model {
         return x;
     }
 
+    public static void showMatrix(double[][] m) {
+        for (int i = 0; i < m.length; i++) {
+            System.out.print("|");
+            for (int j = 0; j < m[0].length; j++) {
+                System.out.print(m[i][j] + "|");
+            }
+            System.out.println();
+        }
+        System.out.println();
+    }
+
     public static void main(String[] args) {
-        double[] n = new double[6];
-        Arrays.fill(n, 31234512450000000.21);
+        /*double[] n = new double[6];
+        n[0] = 312345124500000000000000000000000000000000000000000000000000000000.21;
+        n[1] = 312345124500000000000000000000000000000000000000000000000000.21;
+        n[2] = 3123451245000000000000000000000000000000000000.21;
+        n[3] = 31234512450000000000000000000000000000000000000000000000000000.21;
+        n[4] = 31234512450000000000000000000000000000000000000000000000000000.21;
+        n[5] = 31234512450000000000000000000000000000000000000000000000000000.21;
         System.out.println(String.format("%f", n[4]));
-        reduceEachInLength(n);
-        System.out.println(String.format("%f", n[4]));
+        System.out.println(Arrays.toString(n));
+        System.out.println("num is too long = "+numIsTooBigWithTooMuchZeros(n[0]));
+        System.out.println("min zeros = " + getMinZerosAmountFromIndex(n, 0));
+        divideEach(n, Math.pow(10, getMinZerosAmountFromIndex(n, 0)-1));
+        System.out.println(Arrays.toString(n));*/
+        double a = -3;
+        double b = 0;
+
+        System.out.println(a/b);
     }
 
-    private static void reduceEachInLength(double[] arr) {
+    private static void divideEach(double[] arr, double val) {
         for (int i = 0; i < arr.length; i++)
-            arr[i] = reduceInLength(arr[i]);
+            if (arr[i] != 0) {
+                System.out.printf("before divide:%f", arr[i]);
+                arr[i] /= val;
+                System.out.printf("after divide:%f", arr[i]);
+            }
+
     }
 
-    private static double reduceInLength(double val) {
-        String[] arr =String.format("%f", val).split(",");
-        if(arr[0].charAt(0) == '0' || arr[0].length() < 8)
-            return val;
+    private static int getMinZerosAmountFromIndex(double[] arr, int index) {
+        int min = getZerosAmount(arr[index]);
+        int zeros;
+        for (int i = index+1; i < arr.length; i++)
+            if((zeros = getZerosAmount(arr[i])) < min)
+                min = zeros;
+
+        return min;
+    }
+
+    private static int getZerosAmount(double num) {
+        String[] arr =String.format("%f", num).split(",");
         String valS = arr[0];
         int zerosCounter = 0;
         int index = valS.length()-1;
         char ch = valS.charAt(index);
-        while (ch == '0') {
+        System.out.println("vals = " +valS);
+        while (ch == '0' & index > 0 ) {
             zerosCounter++;
-            index--;
             ch = valS.charAt(index);
+            index--;
         }
-        int nonZeroDigitsAmount = index+1;
-        if (nonZeroDigitsAmount < 5 & zerosCounter > 7) {
-            return Double.parseDouble(Long.parseLong(valS.substring(0, 7)) +
-                    "." + Long.parseLong(arr[1]));
-        }
-        if(nonZeroDigitsAmount >= 5 & zerosCounter > 5) {
-            return Double.parseDouble(Long.parseLong(valS.substring(0, nonZeroDigitsAmount+1)) +
-                                        "." + Long.parseLong(arr[1]));
-        }
-        return val;
+        return zerosCounter;
     }
+
+    private static boolean numIsTooBigWithTooMuchZeros(double num) {
+        if(num == 0 || num < 9999999999999999.9)
+            return false;
+        String[] arr =String.format("%f", num).split(",");
+        if(arr[0].charAt(0) == '0' || arr[0].length() < 15)
+            return false;
+        String valS = String.format("%f", num).split(",")[0];
+        int zerosAmount = getZerosAmount(num);
+        int nonZeroDigitsAmount = valS.length()-zerosAmount;
+        if (nonZeroDigitsAmount < 5 & zerosAmount > 7)
+            return true;
+
+        if(nonZeroDigitsAmount >= 5 & zerosAmount > 5)
+            return true;
+
+        return false;
+    }
+
 
     //повертає -1, якщо матриця несумісна, 0, якщо має єдине значення, 1, якщо безліч
     public static int getMatrixConsistence(double[][] m) {
