@@ -1,4 +1,3 @@
-import Model.Model;
 import Model.exception.InconsistentMatrixException;
 import Model.exception.InfiniteSolutionsAmountException;
 import Model.exception.InvalidInputException;
@@ -18,7 +17,9 @@ import javafx.stage.Stage;
 import java.io.File;
 
 public class View extends Application {
+    //поле моделі, в якій проводятсья вся робота над СЛАР
     Model model;
+    //поля вікон програм, контейнерів їх елементів, самих елементів графічного інтерфейсу
     Stage st, alertStage, resultStage;
     Scene scene, alertScene, resultScene;
     BorderPane layout, alertLayout;
@@ -38,10 +39,14 @@ public class View extends Application {
     FileChooser fileChoose;
     DirectoryChooser dirChoose;
 
+
+    //Метод, що запускає програму
     public static void main(String[] args) {
         launch(args);
     }
 
+    //метод, що починає роботу поргами, на вхід подається об'єкт вікна програми
+    //Повністю оформлюємо сторінки інтерфейсу
     @Override
     public void start(Stage stage) throws Exception {
         model = new Model();
@@ -51,6 +56,8 @@ public class View extends Application {
         st.setWidth(580);
         st.setHeight(500);
 
+
+        //оформлення частини інтерфейсу, що буде супроводжувати всі сторінки
         //general menu
         inputL = new Label("Choose input type : ");
         methodL = new Label(" Choose solving method : ");
@@ -147,9 +154,7 @@ public class View extends Application {
         layout.setBottom(buttonPane);
         scene = new Scene(layout);
 
-        //result box;
-
-
+        //Оформлення вікна помилок
         // alertBox
         alertStage = new Stage();
         alertStage.initModality(Modality.APPLICATION_MODAL);
@@ -184,6 +189,7 @@ public class View extends Application {
         alertStage.setScene(alertScene);
 
 
+        // оформлення сторінки генерації матриці
         // "generate" pane
         genVarNumL = new Label("Set variables amount : ");
         genVarNumCB = new ChoiceBox<>();
@@ -223,6 +229,8 @@ public class View extends Application {
         genPane.getChildren().addAll(genChoosePane, generatedMatrixL);
 
 
+
+        //оформлення сторінки зчитування матриці з файлу
         // "readPane"
         readWarnL = new Label("WARNINGS :\n   - coefficients in file have to be separated by spaces\n" +
                 "   - each coefficient including '0' have to be specified");
@@ -271,6 +279,8 @@ public class View extends Application {
         readPane.getChildren().addAll(readWarnL, readReadPane,readMatrixL);
 
 
+
+        //оформлення сторінки введення коефіцієнтів матриці вручну
         //"manual" choose pane
         manVarNumL = new Label("Choose variables amount : ");
         manVarNumCB = new ChoiceBox<>();
@@ -318,6 +328,7 @@ public class View extends Application {
         st.show();
     }
 
+    //Метод виводить на укран вікно з графічним рішенням вхідної СЛАР розмірності 2
     public void getChartSolving(double[][] matrix) {
         if (matrix.length != 2 & matrix[0].length != 3)
             throw new RuntimeException("Matrix has less or more than two variables to solve it by chart");
@@ -328,6 +339,7 @@ public class View extends Application {
     }
 
 
+    //перевіряє коефіцієнти, введені користувачем вручну та записує іх до матриці моделі
     public void makeMatrixManually() {
         int length = manCoefsF.length;
         int width = manCoefsF[0].length+1;
@@ -346,10 +358,12 @@ public class View extends Application {
         model.setMatrix(matrix);
     }
 
+    //Повертає ТАК, якщо вхідний рядок містить корректні для обробки програмою символи
     private boolean gridInputIsValid(String s) {
         return s.matches("-?\\d+([.,]\\d+)?");
     }
 
+    // Оформлює сітку елементів, в які можна вводити вхідні коефіцієнти СЛАР заданої розмірності
     public void setManualGridPane(int varNum, int eqtNum) {
         manCoefsF = new TextField[eqtNum][varNum];
         manFreeValsF = new TextField[eqtNum];
@@ -370,6 +384,8 @@ public class View extends Application {
         }
     }
 
+    //Представляє вхідну матрицю у вигляді лейблу
+    //Зручно для відображення на інтерфейсі
     public static Label getLabeledMatrix(double[][] matrix) {
         Label label = new Label("");
         if (matrix[0].length == 3) {
@@ -392,6 +408,7 @@ public class View extends Application {
         return label;
     }
 
+    //Готує вікно результату до заповнення
     private void setResultStage() {
         resultStage = new Stage();
         resultStage.setTitle("Result");
@@ -408,6 +425,4 @@ public class View extends Application {
         resultScene = new Scene(resultPane);
         resultStage.setScene(resultScene);
     }
-
-
 }

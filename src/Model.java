@@ -1,5 +1,3 @@
-package Model;
-
 import Model.exception.InconsistentMatrixException;
 import Model.exception.InfiniteSolutionsAmountException;
 
@@ -9,19 +7,26 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class Model {
+    // зчитувач та записувач у файли
     private BufferedReader br;
     private BufferedWriter bw;
+    //вхідна СЛАР та її розмірність
     private double[][] originSlae;
     private int eqtNum;
     private int varNum;
+    //значення сумісності та єдиності рішення СЛАР, результативна СЛАР та масив результату
     private int consistence;
     private double[][] resultSlae;
     private double[] result;
+    //вихідні та вихідні дані у вигляді рядків для зручного відображення у файлі та інтерфейсі
     private String methodName;
     private String originSlaeString, resultSlaeString, resultString, arithmeticsString, totalResultString;
 
+    //лічильники елементарних арифметичних операцій
     private static int sumCount = 0, subtrCount = 0, multCount = 0, divCount = 0;
 
+    //поветає ХИБНЕ, якщо файл містить некорректні символи
+    //Якщо файл задовільний - записує матрицю з нього до поля класу
     public boolean fileIsValid(File input) {
         List<String[]> tempList = new LinkedList<>();
         try {
@@ -61,6 +66,7 @@ public class Model {
         return true;
     }
 
+    //з вхідного масиву коефіцієнтів у вигляді масиву рядків генерує масив дробових значень величиною рівною другому параметру
     private double[] getEquationCoefs(String[] s, int eqtWidth) {
         double[] coefs = new double[eqtWidth];
         for (int i = 0; i < eqtWidth; i++)
@@ -71,6 +77,7 @@ public class Model {
         return coefs;
     }
 
+    //записує результат у файл, що знаходиться у вказаній папці
     public void writeResultToFile(String outPath) {
         File outF = new File(outPath);
         if (outF.isDirectory()) {
@@ -91,6 +98,8 @@ public class Model {
         }
     }
 
+    // повертає шлях до вихідного файлу, назву обраного методу вирішення СЛАР, вхідну, вихідну матриці,
+    // результат та кількість зроблених арфиметичних операцій у вигляді одного рядка
     public String makeTotalResultString() {
         return totalResultString =
                 "Method: "+ methodName + "\n" +
@@ -103,6 +112,7 @@ public class Model {
                         makeArithmeticsString();
     }
 
+    //повертає кількість викоинаних арифметичних операцій у вигляді одного рядка
     private String makeArithmeticsString() {
         return arithmeticsString = "Additions: " + sumCount + "\n" +
                 "Subtractions: " + subtrCount + "\n" +
@@ -110,6 +120,7 @@ public class Model {
                 "Divisions: " + divCount + "\n";
     }
 
+    //повертає вхідну матрицю у вигляді одного рядка
     private String makeOriginSlaeString() {
         if (originSlae[0].length == 3) {
             for (int i = 0; i < originSlae.length; i++) {
@@ -134,6 +145,7 @@ public class Model {
         return originSlaeString;
     }
 
+    //повертає вихідну матрицю у вигляді одного рядка
     private String makeResultSlaeString() {
         for (int i = 0; i < resultSlae.length; i++)
             for (int j = 0; j < resultSlae[0].length; j++) {
@@ -149,7 +161,7 @@ public class Model {
             }
         return resultSlaeString;
     }
-
+    //повертає результат у вигляді одного рядка
     private String makeResultString()  {
         if (result.length == 2)
             resultString += String.format("x" + " = " + " %.3f \n", result[0]) + String.format("y" + " = " + " %.3f \n", result[1]);
@@ -162,6 +174,7 @@ public class Model {
 
     }
 
+    //генерує та поміщає в поле класу СЛАР з дробовими значеннями заданими велечинами
     public void generateFloatMatrix(int varNum, int eqtNum) {
         double[][] matrix = new double[eqtNum][varNum + 1];
         for (int i = 0; i < eqtNum; i++)
@@ -172,6 +185,7 @@ public class Model {
         this.eqtNum = eqtNum;
     }
 
+    //генерує та поміщає в поле класу СЛАР з цілими значеннями заданими велечинами
     public void generateIntMatrix(int varNum, int eqtNum) {
         double[][] matrix = new double[eqtNum][varNum + 1];
         for (int i = 0; i < eqtNum; i++)
@@ -182,6 +196,7 @@ public class Model {
         this.eqtNum = eqtNum;
     }
 
+    //конвертує матрицю типу BigDecimal до типу double
     public static double[][] toDoubleMatrix(BigDecimal[][] m) {
         double[][] res = new double[m.length][m[0].length];
         for (int i = 0; i < m.length; i++)
@@ -190,6 +205,8 @@ public class Model {
 
         return res;
     }
+
+    //конвертує матрицю типу double до типу BigDecimal
     public static BigDecimal[][] toBigDecimalMatrix(double[][] m) {
         BigDecimal[][] res = new BigDecimal[m.length][m[0].length];
         for (int i = 0; i < m.length; i++)
@@ -198,7 +215,7 @@ public class Model {
 
         return res;
     }
-
+ // онулює значення лічильників арифметичних опреаций
     private void nullifyCounters() {
         sumCount = 0;
         subtrCount = 0;
@@ -206,6 +223,8 @@ public class Model {
         divCount = 0;
     }
 
+    //перевіряє матрицю з поля класу на єдиність рішення, вирішує заданим методом та
+    // записує результат у поле результату класу
     public void solveMatrixByMethod(String methodName) {
         if (matrixIsReady()) {
             this.eqtNum = originSlae.length;
@@ -232,6 +251,7 @@ public class Model {
         return backtrace(matrix);
     }
 
+    //зводить вхідну матрицю до трикутного вигляду
     public static void makeTriangleView(double[][] matrix) {
         int eqtNum = matrix.length;
         int eqtWidth = matrix[0].length - 1;
@@ -242,20 +262,9 @@ public class Model {
                 if (Math.abs(matrix[j][i]) < Math.abs(matrix[max][j]))
                     max = j;
 
-
-            //matrix[i][eqtWidth] matrix[max][eqtWidth]
-            //vector[i] vector[max]
             double[] temp = matrix[i];
             matrix[i] = matrix[max];
             matrix[max] = temp;
-
-            //don't need this line if vector is not in use(extended matrix in 'matrix' variable)
-            /*double v = matrix[i][eqtWidth];
-            matrix[i][eqtWidth] = matrix[max][eqtWidth];
-            matrix[max][eqtWidth] = v;*/
-
-            /*if (Math.abs(matrix[i][i]) <= EPSILON)
-                throw new RuntimeException("Matrix is singular");*/
 
             for (int k = i+1; k < eqtNum; k++) {
                 if (matrix[i][i] == 0) {
@@ -264,8 +273,6 @@ public class Model {
                 }
                 double alfa = matrix[k][i] / matrix[i][i];
                 divCount++;
-                //matrix[k][eqtWidth]  matrix[i][eqtWidth]
-                //vector[k]  vector[i]
                 matrix[k][eqtWidth] -= alfa * matrix[i][eqtWidth];
                 multCount++;
                 subtrCount++;
@@ -279,12 +286,14 @@ public class Model {
         }
     }
 
+    //додає до кожного елемента вхідного масиву 1
     private static void addOneToEachElement(double[] arr) {
         for (int i = 0; i < arr.length; i++) {
             arr[i] += 1;
         }
     }
 
+    //повертає масив результату з раніше передбачуваної трикутної матриці
     private double[] backtrace(double[][] matrix) {
         int length = matrix.length;
         int width = matrix[0].length;
@@ -307,6 +316,7 @@ public class Model {
         return x;
     }
 
+    //вирішує передану слар методом Жордана-Гауса, записує результат у поле класу та повертає його
     public double[] jordanGaussSolve(double[][] matrix) {
         int n = matrix.length;
         if ((matrix[0].length - matrix.length) != 1)
@@ -347,6 +357,7 @@ public class Model {
         return x;
     }
 
+    //вирішує передану слар методом обертань, записує результат у поле класу та повертає його
     public double[] rotationSolve(double[][] matrix) {
         double c,s, mik;
         for (int i = 0 ; i < matrix.length; i++) {
@@ -383,6 +394,7 @@ public class Model {
         return x;
     }
 
+    //повертає -1, якщо матриця несумісна, 0, якщо має єдине значення, 1, якщо безліч
     public static int getMatrixConsistence(double[][] m) {
         makeTriangleView(m);
         int extendedMatrixRank = getExtendedMatrixRank(m);
@@ -391,6 +403,7 @@ public class Model {
         return Integer.compare(getRegularMatrixRank(m), extendedMatrixRank);
     }
 
+    //повертає значення рангу розширеної вхідної матриці
     private static int getExtendedMatrixRank(double[][] m) {
         int nonZeroRawCounter = 0;
         for (int i = 0; i < m.length; i++) {
@@ -404,6 +417,7 @@ public class Model {
         return nonZeroRawCounter;
     }
 
+    //повертає значення рангу стандартної частини вхідної матриці
     private static int getRegularMatrixRank(double[][] m) {
         int nonZeroRawCounter = 0;
         for (int i = 0; i < m.length; i++) {
@@ -417,6 +431,7 @@ public class Model {
         return nonZeroRawCounter;
     }
 
+    //очищає всі результати у вигляді рядків
     public void nullifyResultingStrings() {
         originSlaeString = "";
         resultSlaeString = "";
@@ -424,10 +439,13 @@ public class Model {
         arithmeticsString = "";
         totalResultString = "";
     }
+
+    //повертає ТАК, якщо поле вхідної матриці класу не дорівнює NULL
     public boolean matrixIsReady() {
         return this.originSlae != null;
     }
 
+    //поветає копію вхідної матриці, що дохволяє проводити над нею зміни не втрачаючи початкового стану
     public static double[][] cloneMatrix(double[][] matrix) {
         double[][] result = new double[matrix.length][matrix[0].length];
         for (int i = 0; i < matrix.length; i++)
@@ -436,25 +454,29 @@ public class Model {
         return result;
     }
 
-
+    // поветрає значення кількості змінних СЛАР
     public int getVarNum() {
         return varNum;
     }
 
+    // поветрає значення кількості рівнянь СЛАР
     public int getEquationsNum() {
         return eqtNum;
     }
 
+    //передає вхідну матрицю та її размірність до відповіних полів класу
     public void setMatrix(double[][] matrix) {
         this.originSlae = matrix;
         this.varNum = matrix[0].length - 1;
         this.eqtNum = matrix.length;
     }
 
+    //повертає ТАК, якщо маси результату не дорівнює null
     public boolean resultExists() {
         return result != null;
     }
 
+    //повертає вхідну матрицю
     public double[][] getOriginSlae() {
         return originSlae;
     }

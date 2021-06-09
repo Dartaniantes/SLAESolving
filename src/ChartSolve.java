@@ -1,8 +1,6 @@
-import Model.Model;
 import javafx.application.Application;
 import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
@@ -17,36 +15,46 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 
 public class ChartSolve extends Application {
-    private Stage stage;
-    private Scene scene;
-    private StackPane root;
-    private Pane worldPane;
-    private String title = "Chart Solve";
+    private Stage stage;    // Поле вікна програми
+    private Scene scene;        // Поле контейнера особливого вигляду вікна програми
+    private StackPane root;     // Контейнер елементів вікна програми
+    private Pane worldPane;     // Контейнер елементів вікна програми
+    private String title = "Chart Solve";       //заголовок вікна
+    //розмірність вікна
     private double height =720;
     private double width =  720;
 
+    //Вхідні та результативні дані
     private double[][] slae;
     private Coordinates screenResult, worldResult;
 
+    //Головні графічні елементи(прямі та точка їх перетину)
     private Line l1;
     private Line l2;
     private Shape intersection;
 
+    //розмірність відносної системи координат(далі - ВСК)
     private double worldMinX = -10;
     private double worldMaxX = 10;
     private double worldMinY = -10;
     private double worldMaxY = 10;
 
+    //здвиг ВСК від лівого верхнього кута вікна
     private double offsetX = 0;
     private double offsetY = 0;
 
+    //масштаб ВСК
     private double scaleX = 1.0;
     private double scaleY = 1.0;
 
+    // метод запуску програми
     public static void main(String[] args) {
         launch(args);
     }
 
+    //Метод початку роботи програми
+    //На вхід передається об'єкт вікна, в якому буде відображатися графічна частина програми
+    //Тут програма готує основні елемнти та параметри вікна, задає початкові здвиг та масштаб ВСК
     @Override
     public void start(Stage stage) {
         this.stage = stage;
@@ -59,6 +67,8 @@ public class ChartSolve extends Application {
         update();
     }
 
+    //Конструктор, що приймає на вхід вирішувану матрицю
+    //Саме його ми і використовуємо
     public ChartSolve(double[][] matrix) {
         this.slae = matrix;
     }
@@ -67,7 +77,11 @@ public class ChartSolve extends Application {
 
     }
 
-
+    //  основний метод побудови графіків
+    //На вхід подається передана в конструкторі матриця
+    // Тут будуються графіки функцій, за необхідності розширюється ВСК, після чого графіки перебудовуются.
+    // Якщо графіки мають спільну точну, вона помічається червоними лініями
+    // Все, що зображено на ВСК розтягується по розмірності вікна
     private void solve(double[][] m) {
         BigDecimal[][] matrix = Model.toBigDecimalMatrix(Model.cloneMatrix(m));
 
@@ -121,17 +135,20 @@ public class ChartSolve extends Application {
             designateWorldDot(worldResult);
     }
 
+    //Масштабує ВСК до розміру вікна та поміщає її центр в центр екрана
     private void equaliseWorldNStage() {
         scaleX = 0.49 * width / worldMaxX;
         scaleY = 0.49 * height / worldMaxY;
         centrate();
     }
 
+    //поміщає центр ВСК в центр екрана
     private void centrate() {
         offsetX = -width/2/scaleX;
         offsetY = -height/2/scaleY;
     }
 
+    // повертає ТАК, якщо вхідна лінія знаходиться в межах розмірності сучасної ВСК
     private boolean isVisibleInCurrSystem(Line l) {
         double visBorderX = worldMaxX * 0.9;
         double visBorderY = worldMaxY * 0.9;
@@ -148,6 +165,7 @@ public class ChartSolve extends Application {
         return !Line.intersect(visibleBorder, l).getBoundsInParent().isEmpty();
     }
 
+    //Розщирює розмірність ВСК на вказану величину
     private void expandWorld(double addSize){
         worldMaxX += addSize;
         worldMinX -= addSize;
@@ -155,11 +173,13 @@ public class ChartSolve extends Application {
         worldMinY -= addSize;
     }
 
+    // Повертає ТАК, якщо вхідна матриця має єдине рішення
     private boolean hasSingleSolution(double[][] m) {
         return Model.getMatrixConsistence(Model.cloneMatrix(m)) == 0;
     }
 
 
+    // Повертає значення найбільш віддаленої від початку ВСК координати, що належить передаваній лінії
     private double getBiggestWorldCoordinate(Line l) {
         Coordinates s = screenToWorld(l.getStartX(), l.getStartY());
         Coordinates e = screenToWorld(l.getEndX(), l.getEndY());
@@ -174,12 +194,14 @@ public class ChartSolve extends Application {
         return max;
     }
 
+    // Повертає значення найбільш віддаленої від початку ВСК координати, та що є найбільшою серед передаваних лінінй
     private double getBiggestWorldCoordinate(Line l1, Line l2) {
         double l1c = getBiggestWorldCoordinate(l1);
         double l2c = getBiggestWorldCoordinate(l2);
         return Math.max(l1c, l2c);
     }
 
+    //Вказана точка на ВСК відмічається червоними лініями та велечинами своїх координат
     private void designateWorldDot(Coordinates worldDot) {
         Coordinates horStart = worldToScreen(new Coordinates(worldDot.x,0));
         Coordinates horEnd = worldToScreen(new Coordinates(worldDot.x, worldDot.y));
@@ -226,6 +248,8 @@ public class ChartSolve extends Application {
         vertical.setStrokeWidth(2);
         worldPane.getChildren().addAll(horizontal, vertical, xString, yString);
     }
+
+    // округлє передане дробове значення до вказаної кількості знаків після коми
     private double round(double value, int places) {
         if (places < 0) throw new IllegalArgumentException();
         BigDecimal bd = BigDecimal.valueOf(value);
@@ -233,6 +257,7 @@ public class ChartSolve extends Application {
         return bd.doubleValue();
     }
 
+    //заповнює головне вікно необхідними для відображення графіки елементами
     private void prepareWindow() {
         root = new StackPane();
         scene = new Scene(root, width, height);
@@ -320,18 +345,25 @@ public class ChartSolve extends Application {
         });
     }*/
 
+
+    //очищає все, що знаходиться на ВСК на перемальовує осі координат
+    private void updateWorld() {
+        worldPane.getChildren().clear();
+        drawLines();
+    }
+
+    //очищає все, що було намальовано на ВСК та наново перемальовує графіки функцій згідно стану програми
     private void update() {
         updateWorld();
         solve(slae);
     }
 
-    private void updateWorld() {
-        worldPane.getChildren().clear();
-        drawLines();
-    }
+    //додає до контейнеру ВСК(далі - КВСК) вказані елемети
     private void updateWith(Node... n) {
         worldPane.getChildren().addAll(n);
     }
+
+    //додає до КВСК осі координат
     private void drawLines() {
         int smallStrWidth = 1;
         int bigStrWidth = 3;
@@ -406,34 +438,31 @@ public class ChartSolve extends Application {
 
     }
 
+    //Конвертує вхідне значення довжини з системи координат вікна(далі - СКВ) до ВСК
     private double screenLengthToWorld(double length) {
         return length / scaleX;
     }
 
+    //Конвертує вхідне значення довжини з ВСК до СКВ
     private double worldLengthToScreen(double length) {
         return length * scaleX;
     }
 
+    //конвертує вхідне значення координат за ВСК до СКВ
     private Coordinates worldToScreen(double wx, double wy) {
         return new Coordinates(
                 worldXToScreen(wx),
                 worldYToScreen(wy)
         );
     }
-
-    /*private double worldYToScreen(double wy) {
-        return (-wy - offsetY) * scaleY;
-    }*/
+    //конвертує вхідне значення координати "у" за ВСК до СКВ
     private double worldYToScreen(double wy) {
         BigDecimal wyBD = BigDecimal.valueOf(wy);
         BigDecimal scaleYBD = BigDecimal.valueOf(scaleY);
         BigDecimal offsetYBD = BigDecimal.valueOf(offsetY);
         return wyBD.negate().subtract(offsetYBD).multiply(scaleYBD).doubleValue();
     }
-
-    /*private double worldXToScreen(double wx) {
-        return (wx - offsetX) * scaleX;
-    }*/
+    //конвертує вхідне значення координати "х" за ВСК до СКВ
     private double worldXToScreen(double wx) {
         BigDecimal wxBD = BigDecimal.valueOf(wx);
         BigDecimal scaleXBD = BigDecimal.valueOf(scaleX);
@@ -441,27 +470,21 @@ public class ChartSolve extends Application {
         return wxBD.subtract(offsetXBD).multiply(scaleXBD).doubleValue();
     }
 
+    //конвертує вхідне значення координат за ВСК до СКВ
     private Coordinates worldToScreen(Coordinates world) {
         return new Coordinates(
                 worldXToScreen(world.x),
                 worldYToScreen(world.y)
         );
     }
-
-    /*private double screenXToWorld(double sx) {
-
-        return sx/scaleX + offsetX;
-    }*/
+    //конвертує вхідне значення координати "х" з СКВ до ВСК
     private double screenXToWorld(double sx) {
         BigDecimal sxBD = BigDecimal.valueOf(sx);
         BigDecimal scaleXBD = BigDecimal.valueOf(scaleX);
         BigDecimal offsetXBD = BigDecimal.valueOf(offsetX);
         return sxBD.divide(scaleXBD, RoundingMode.HALF_EVEN).add(offsetXBD).doubleValue();
     }
-
-    /*private double screenYToWorld(double sy) {
-        return -(sy/scaleY + offsetY);
-    }*/
+    //конвертує вхідне значення координати "у" з СКВ до ВСК
     private double screenYToWorld(double sy) {
         BigDecimal syBD = BigDecimal.valueOf(sy);
         BigDecimal scaleYBD = BigDecimal.valueOf(scaleY);
@@ -469,19 +492,22 @@ public class ChartSolve extends Application {
         return syBD.divide(scaleYBD, RoundingMode.HALF_EVEN).add(offsetYBD).negate().doubleValue();
     }
 
+    //конвертує вхідне значення координат з СКВ до ВСК
     private Coordinates screenToWorld(double sx, double sy) {
         return new Coordinates(
                 screenXToWorld(sx),
                 screenYToWorld(sy)
         );
     }
-
+    //конвертує вхідне значення координат з СКВ до ВСК
     private Coordinates screenToWorld(Coordinates screen) {
         return new Coordinates(
                 screenXToWorld(screen.x),
                 screenYToWorld(screen.y)
         );
     }
+
+    // Повертає лінію графіка функції, згенеровану згідно передаваним значенням коефіцієнтів при "х" та "у" та вільному члену
     private Line drawFuncGraph(BigDecimal xCoef, BigDecimal yCoef, BigDecimal freeCoef){
         if(yCoef.doubleValue() == 0 & xCoef.doubleValue() == 0)
             throw new RuntimeException("Cant draw graph");
@@ -523,24 +549,29 @@ public class ChartSolve extends Application {
         screenEnd = worldToScreen(worldEnd);
         return new Line(screenStart.x, screenStart.y, screenEnd.x, screenEnd.y);
     }
+
+    //повертає математичну функцію, згенеровану згідно передаваним значенням коефіцієнтів при "х","у" та вільному члену
     private MathFunctionBD getStraightFunc(BigDecimal varCoef, BigDecimal denominator, BigDecimal freeVal){
         if (denominator.doubleValue() == 0)
             return null;
         return var -> (freeVal.subtract(varCoef.multiply(var))).divide(denominator, 2, RoundingMode.HALF_UP);
     }
 
-
+    // повертає значення зміни вхідної математичної функції
     private double getDelta(MathFunctionBD f) {
         return f.count(BigDecimal.valueOf(2))
                 .subtract(f.count(BigDecimal.valueOf(1)))
                 .doubleValue();
     }
 
+    //функціональний інтерфейс математичної функції
     interface MathFunctionBD {
         BigDecimal count(BigDecimal num);
     }
 
+    //класс координат
     private class Coordinates{
+        //значення координат
         private double x;
         private double y;
 
@@ -552,7 +583,6 @@ public class ChartSolve extends Application {
         }
 
         public String toString() {
-            
             return "Coordinates:" + x + " | " + y;
         }
     }
